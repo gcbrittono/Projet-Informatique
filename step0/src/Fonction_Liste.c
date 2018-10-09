@@ -45,7 +45,7 @@ void afficherFile(File F){
 	if (estVide(F)) /*cas ou la file est vide, on sort de la fonction*/
 		printf("la file est vide");
 		return;
-	printf("Ligne %d : [ %s ] : %s \n", F->suiv->element.ligne, F->suiv->element.categorie, F->suiv->element.lexeme);
+	printf("Ligne %d : [ %d ] : %s \n", F->suiv->element.ligne, F->suiv->element.categorie, F->suiv->element.lexeme);
 }
 
 //retire le premier élément de la file 

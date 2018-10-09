@@ -18,6 +18,53 @@
 #include <notify.h>
 #include <lex.h>
 
+/*fonction qui crée une liste*/
+File creerFile(){
+	return NULL;
+}
+
+/*fonction qui vérifie si la liste est vide*/
+int estVide(File L){
+	return !L;
+}
+
+/*fonction qui ajoute un maillon à la fin de la file contenant le lexeme lex, de type cat et qui est sur la ligne lig, à la liste L*/
+lex_t creerElement(char* lex, int cat, int lig){
+	lex_t p;
+	strcpy(p.lexeme,lex);
+	p.categorie=cat;
+	p.ligne=lig;
+	p.suiv=NULL;
+	return p;
+}
+
+File enfiler(lex_t L, File F){
+	File A=calloc(1,sizeof(*A));
+	if (A==NULL)
+		return NULL;
+	A=&L;
+	if (estVide(F))
+		A->suiv=A;
+	else{
+		A->suiv=F->suiv;
+		F->suiv=A;
+	}
+	return A;
+}
+	
+
+
+
+
+/*afiche le premier élément de la file*/
+void afficherFile(File F){
+	if (estVide(F)){ /*cas ou la file est vide, on sort de la fonction*/
+		printf("la file est vide");
+		return;
+	}
+	printf("Ligne %d : [ %d ] : %s \n",F->suiv->ligne, F->suiv->categorie,F->suiv->
+lexeme);
+}
 
 
 /* ATTENTION: getNextToken est juste un exemple -> il est à recoder completement !!! */
@@ -117,7 +164,7 @@ char* getNextToken(char** token, char* current_line) {
  *
  */
 
-void lex_read_line( char *line, int nline) {
+void lex_read_line( char *line, int nline, File F) {
     char* token = NULL;
     char* current_address=line;
 
@@ -148,7 +195,7 @@ while (*c!='\0'){
 			}
 			else if (iscntrl(*c)){
 				if (*c == '\n') S = SAUT_DE_LIGNE;
-				else  printf ("Erreur1 ");
+				else  printf ("Erreur INIT ");
 			}
 			else{
 				switch(*c){
@@ -183,7 +230,7 @@ while (*c!='\0'){
 						S = DECIMAL;
 						break;
 					default:
-						 printf ("Erreur2 ");
+						 printf ("Erreur INIT ");
 				}
 			}
 		/*}*/
@@ -197,30 +244,30 @@ while (*c!='\0'){
 		if (isalpha(*c)) S = SYMBOLE;
 		else if (*c == ':'||*c == '.') S = TERM;
 		else if (isspace(*c)) S = TERM;
-		else printf ("Erreur 3");
+		else printf ("Erreur SYMBOLE");
 		break;
 		
 	case DIRECTIVE:
 		if (isalpha(*c)) S = DIRECTIVE;
 		else if(isspace(*c)) S = TERM;
-		else printf ("Erreur 4");
+		else printf ("Erreur DIRECTIVE");
 		break;
 		
 	case REGISTRE:
 		if (isalnum(*c)) S = REGISTRE;
 		else if (*c == ',') S = TERM;
 		else if (isspace(*c)) S = TERM;
-		else printf ("Erreur 5");
+		else printf ("Erreur REGISTRE");
 		break;
 		
 	case DEUX_POINTS:
 		if (isspace(*c)) S = TERM;
-		else printf ("Erreur 6");
+		else printf ("Erreur DEUX-POINTS");
 		break;
 		
 	case VIRGULE:
 		if (isspace(*c)) S = TERM;
-		else printf ("Erreur7");
+		else printf ("Erreur VIRGULE");
 		break;
 		
 	case SAUT_DE_LIGNE:
@@ -232,30 +279,30 @@ while (*c!='\0'){
 		else if (*c == '\n') S = TERM;
 		else if (isspace(*c)) S = TERM;
 		if (isdigit(*c)||((0<=*c)<=7))S = OCTATE;
-		else printf("Erreur 8");
+		else printf("Erreur DECIMAL-ZEROS");
 		break;
 
 	case HEXA_DEBUT:
 		if(isxdigit(*c)) S = HEXA;
-		else printf("Erreur9");
+		else printf("Erreur HEXA_DEBUT");
 		break;
 
 	case OCTATE:
 		if (isdigit(*c)||((0<=*c)<=7))S = OCTATE;
 		else if(isspace(*c) && *c == '\n') S = TERM;
-		else printf("Erreur10");
+		else printf("Erreur OCTATE");
 		break;
 
 	case DECIMAL:
 		if(isdigit(*c)) S = DECIMAL;
 		else if(isspace(*c) && *c == '\n') S = TERM;
-		else printf("Erreur11");
+		else printf("Erreur DECIMAL");
 		break;
 
 	case HEXA:
 		if(isxdigit(*c)) S = HEXA;
 		else if(isspace(*c) && *c == '\n') S = TERM;
-		else printf("Erreur12");
+		else printf("Erreur HEXA");
 		break;
 	case TERM:
 		break;	
@@ -269,9 +316,57 @@ while (*c!='\0'){
   }
 c++;
  } 
-  
-  
- printf("%d : ",S); 
+/*lex_t t=creerElement("gjfjk", 4 ,5);*/
+/*F=enfiler(t,F);*/
+ char* etats;
+switch(S){
+	case 1:
+		etats="INIT";
+		break;
+	case 2:
+		etats="COMMENTAIRE";
+		break;
+	case 3:
+		etats="SYMBOLE";
+		break;
+	case 4:
+		etats="DIRECTIVE";
+		break;
+	case 5:
+		etats="REGISTRE";
+		break;
+	case 6:
+		etats="DEUX_POINTS";
+		break;
+	case 7:
+		etats="VIRGULE";
+		break;
+	case 8:
+		etats="SAUT_DE_LIGNE";
+		break;
+	case 9:
+		etats="HEXA_DEBUT";
+		break;
+	case 10:
+		etats="OCTATE";
+		break;
+	case 11:
+		etats="DECIMAL_ZEROS";
+		break;
+	case 12:
+		etats="DECIMAL";
+		break;
+	case 13:
+		etats="TERM";
+		break;
+	case 14:
+		etats="HEXA";
+		break;
+	case 15:
+		etats="CITATION";
+		break;
+}
+ printf("ligne %d : [%s] :",nline, etats); 
         puts(token);
     }
 	
@@ -303,7 +398,7 @@ void lex_load_file( char *file, unsigned int *nlines ) {
 
     FILE        *fp   = NULL;
     char         line[STRLEN]; /* original source line */
-
+	File F=creerFile();
 
 
     fp = fopen( file, "r" );
@@ -323,7 +418,7 @@ void lex_load_file( char *file, unsigned int *nlines ) {
 		/*printf("%d \n",*nlines);*/
 
             if ( 0 != strlen(line) ) {
-                lex_read_line(line,*nlines);
+                lex_read_line(line,*nlines,F);
             }
         }
     }

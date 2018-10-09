@@ -1,7 +1,11 @@
+
 # TEST_RETURN_CODE = PASS
+
 # allons au ru
 .set noreorder
 .text
+
+
     Lw $t0 , lunchtime
     LW $6, -200($7)
     ADDI $t1,$zero,8
@@ -12,7 +16,7 @@ boucle:
     J boucle 
     NOP
 byebye:
-    JAL viteviteauru
+    JAL vite(viteauru)
 
 .data
 lunchtime: 
@@ -22,3 +26,4 @@ lunchtime:
 .bss 
 menu:
     .space 24
+(:)(,,"""\""""
