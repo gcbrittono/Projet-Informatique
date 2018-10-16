@@ -16,7 +16,10 @@ int estVide(File L){
 //fonction qui ajoute un maillon à la fin de la file contenant le lexeme lex, de type cat et qui est sur la ligne lig, à la liste L
 lex_t creerElement(char* lex, int cat, int lig){
 	lex_t p;
+p.lexeme = NULL;
+printf("go\n");
 	strcpy(p.lexeme,lex);
+printf("ok\n");
 	p.categorie=cat;
 	p.ligne=lig;
 	p.suiv=NULL;
