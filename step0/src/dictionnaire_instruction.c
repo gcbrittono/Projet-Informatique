@@ -62,9 +62,12 @@ void toLowerStr(char *str){
 
 
 //Fonction pour insérer le symbole dans un position données dans le tableau hash
-void insérer (char* str, DictionnaireIn* hashTableDictionnaireIn){
-	int index = funHash(str);
-	char hashTableDictionnaireIn[index] = str;
+void inserer (DictionnaireIn dictionnaire, DictionnaireIn* hashTableDictionnaireIn){
+	int index = funHash(dictionnaire->symbole);
+
+	hashTableDictionnaireIn[index]->symbole = dictionnaire->symbole;
+	hashTableDictionnaireIn[index]->type = dictionnaire->type;
+	hashTableDictionnaireIn[index]->operands = dictionnaire->operands;
 
 }
 
