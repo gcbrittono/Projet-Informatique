@@ -13,6 +13,7 @@
 #include <global.h>
 #include <notify.h>
 #include <lex.h>
+#include <gram.h>
 
 /**
  * @param exec Name of executable.
@@ -71,7 +72,24 @@ int main ( int argc, char *argv[] ) {
 
 
     /* ---------------- do the lexical analysis -------------------*/
-    lex_load_file( file, &nlines );
+	File F=creerFile();
+    lex_load_file( file, &nlines,&F );
+	printf("ok \n");
+
+	File P=F;
+	do{
+		afficherFile(P);
+		P=P->suiv;
+	}while (P!=F);
+	
+	/* ---------------- do the gramatical analysis -------------------*/
+	ListeG Inst=NULL;
+	ListeG Symb=NULL;
+	ListeG Do1=NULL;
+	ListeG Do2=NULL;
+
+	gramAnalyse(F, Inst, Symb, Do1, Do2);
+	
     DEBUG_MSG("source code got %d lines",nlines);
 
     /* ---------------- Free memory and terminate -------------------*/

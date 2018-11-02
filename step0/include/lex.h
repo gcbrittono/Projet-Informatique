@@ -13,9 +13,11 @@
 
 #include <stdio.h>
 
+typedef enum {INIT, COMMENTAIRE, SYMBOLE, DIRECTIVE, REGISTRE,  DEUX_POINTS, VIRGULE, SAUT_DE_LIGNE, HEXA_DEBUT, OCTATE, DECIMAL_ZEROS, DECIMAL, TERM, HEXA, CITATION,PARENTHESE} etat;
+
 typedef struct lex {
 	char* lexeme;
-	int categorie;
+	etat categorie;
 	int ligne;
 	struct lex * suiv;
 } lex_t;
@@ -30,7 +32,7 @@ int estVide(File L);
 
 /*fonction qui créun élément contenant le lexeme lex, de type cat et qui est sur la ligne lig*/
 
-lex_t creerElement(char* lex, int cat, int lig);
+lex_t creerElement(char* lex, etat cat, int lig);
 
 /*fonction qui enfile l'element L a la file F*/
 File enfiler(lex_t L, File F);
@@ -38,8 +40,8 @@ File enfiler(lex_t L, File F);
 /*fonction qui affiche le contenue de la file :  le lexeme, sa ligne et sa catégorie*/
 void afficherFile(File F);
 
-void	lex_read_line( char *, int , File F);
-void	lex_load_file( char *, unsigned int * );
+void	lex_read_line( char *, int , File *F);
+void	lex_load_file( char *, unsigned int *, File *F );
 char* 	getNextToken( char** , char* );
 
 #endif /* _LEX_H_ */

@@ -42,7 +42,7 @@ File enfiler(lex_t L, File F){
 	File A=calloc(1,sizeof(*A));
 	if (A==NULL)
 		return NULL;
-	A=&L;
+	*A=L;
 	if (estVide(F))
 		A->suiv=A;
 	else{
@@ -62,55 +62,55 @@ void afficherFile(File F){
 		printf("la file est vide \n");
 		return;
 	}
-	char* etats;
+	char etats[20] 	;
 	switch(F->suiv->categorie){
 		case 0:
-			etats="INIT";
+			strcpy(etats,"INIT");
 			break;
 		case 1:
-			etats="COMMENTAIRE";
+			strcpy(etats,"COMMENTAIRE");
 			break;
 		case 2:
-			etats="SYMBOLE";
+			strcpy(etats,"SYMBOLE");
 			break;
 		case 3:
-			etats="DIRECTIVE";
+			strcpy(etats,"DIRECTIVE");
 			break;
 		case 4:
-			etats="REGISTRE";
+			strcpy(etats,"REGISTRE");
 			break;
 		case 5:
-			etats="DEUX_POINTS";
+			strcpy(etats,"DEUX_POINTS");
 			break;
 		case 6:
-			etats="VIRGULE";
+			strcpy(etats,"VIRGULE");
 			break;
 		case 7:
-			etats="SAUT_DE_LIGNE";
+			strcpy(etats,"SAUT_DE_LIGNE");
 			break;
 		case 8:
-			etats="HEXA_DEBUT";
+			strcpy(etats,"HEXA_DEBUT");
 			break;
 		case 9:
-			etats="OCTATE";
+			strcpy(etats,"OCTATE");
 			break;
 		case 10:
-			etats="DECIMAL_ZEROS";
+			strcpy(etats,"DECIMAL_ZEROS");
 			break;
 		case 11:
-			etats="DECIMAL";
+			strcpy(etats,"DECIMAL");
 			break;
 		case 12:
-			etats="TERM";
+			strcpy(etats,"TERM");
 			break;
 		case 13:
-			etats="HEXA";
+			strcpy(etats,"HEXA");
 			break;
 		case 14:
-			etats="CITATION";
+			strcpy(etats,"CITATION");
 			break;
 		case 15:
-			etats="PARENTHESE";
+			strcpy(etats,"PARENTHESE");
 			break;
 	}
 	printf("Ligne %d : [ %s ] : %s \n",F->suiv->ligne, etats, F->suiv->lexeme);
@@ -145,9 +145,7 @@ char* getNextToken(char** token, char* current_line) {
 
 	switch(*start){
 		case ('#'):
-			while (*end!='\n')
-				end++;
-			while (*end!='\0' && !isblank(*end))
+			while (*end!='\0')
 				end++;
 			break; /*eats any blanks or end of words or enter at the end of a comment*/
 	
@@ -179,7 +177,7 @@ char* getNextToken(char** token, char* current_line) {
 
 		default:
 			while (*end!='\0' && !isblank(*end)){	
-				if (*end==':' || *end==',' || *end=='(' || *end==')' || *end=='"' || *end=='#'){
+				if (*end==':' || *end==',' || /**end=='(' || *end==')' || */*end=='"' || *end=='#'){
 					token_size=end-start;
     					if (token_size>0){
 						*token 	= calloc(token_size+1,sizeof(*start));
@@ -215,7 +213,7 @@ char* getNextToken(char** token, char* current_line) {
  *
  */
 
-void lex_read_line( char *line, int nline, File F) {
+void lex_read_line( char *line, int nline, File* F) {
     	char* token = NULL;
     	char* current_address=line;
 
@@ -234,8 +232,6 @@ void lex_read_line( char *line, int nline, File F) {
 	while (*c!='\0'){
   		switch(S) {
   			case INIT:
-	
-		/*if(isascii(c)){*/
 				if(isdigit(*c)){/*il separe les chiffres des caracteres*/
 					S = (*c=='0')?DECIMAL_ZEROS : DECIMAL;	
 				}
@@ -283,8 +279,6 @@ void lex_read_line( char *line, int nline, File F) {
 						 	printf ("Erreur INIT ");
 					}
 				}
-				/*}*/
-				/*else printf ("Erreur ");*/
 				break;
 		
 			case COMMENTAIRE:
@@ -363,38 +357,14 @@ void lex_read_line( char *line, int nline, File F) {
 				break;	
 
 			case CITATION:
-				break;
-		
-	
-  
-  
+				break; 
   		}
 		c++;
  	} 
-
-	F=enfiler(creerElement(token, S ,nline),F);
-afficherFile(F);
- 
-        /*puts(token);*/
-
+	*F=enfiler(creerElement(token, S ,nline),*F);
     }
-	
-    return;
 }
-/*void lex_read_line( char *line, int nline) {
-    char* token = NULL;
-    char* current_address=line;*/
 
-
-    /* TODO : faire l'analyse lexical de chaque token ici et les ajouter dans une collection*/
-    /* ATTENTION: getNextToken est à recoder completement*/
-/*    while( (current_address= getNextToken(&token, current_address)) != NULL){ 
-
-        puts(token);
-    }
-
-    return;
-}*/
 
 /**
  * @param file Assembly source code file name.
@@ -403,7 +373,7 @@ afficherFile(F);
  * @brief This function loads an assembly code from a file into memory.
  *
  */
-void lex_load_file( char *file, unsigned int *nlines, File F ) {
+void lex_load_file( char *file, unsigned int *nlines, File* F ) {
 	FILE        *fp   = NULL;
 	char         line[STRLEN]; /* original source line */
 	
@@ -431,13 +401,6 @@ void lex_load_file( char *file, unsigned int *nlines, File F ) {
         	}
 	
     	}
-
-/*affichage de la file de lexeme*/
-	/*File P=F;
-	do{
-		afficherFile(P);
-		P=P->suiv;
-	}while (P!=F);*/
 	
 /*fermeture du fichier et fin de fonction*/		
     	fclose(fp);
