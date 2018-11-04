@@ -17,6 +17,7 @@ typedef struct DictionnaireIn{
 	char* symbole;
     	char type;
     	int operands;
+	int col;
 } Dico;
 
 /*Liste circulaire Générique*/

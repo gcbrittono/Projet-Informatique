@@ -3,9 +3,10 @@
 #include <string.h>
 #include <ctype.h>
 #include <strings.h>
-#include "gram.h"
-#include "lex.h"
+#include <gram.h>
+#include <lex.h>
 #include <unistd.h>
+#include <math.h>
 
 
 /*fonction qui crée une liste*/
@@ -86,8 +87,8 @@ ListeG ajouterQueue(void* e, ListeG L){
 	free(A);
 	return t;
 }*/
-/*Fonction qui a comment entrée la chaine des characters et comment sortie le code hash liée a cette entrée*/
-int funHash(char* str, int taille){ /* Trouver en https://stackoverflow.com/questions/7666509/hash-function-for-string*/
+/*Fonction qui a comment entrée la chaine des characters et comment sortie le code hash liée a cette entrée
+int funHash(char* str, int taille){  Trouver en https://stackoverflow.com/questions/7666509/hash-function-for-string
 	char new[32];
 	snprintf(new, 32, "%s", str);
 	toLowerStr(new);
@@ -107,10 +108,21 @@ int funHash(char* str, int taille){ /* Trouver en https://stackoverflow.com/ques
     hash ^= (hash >> 11);
     hash += (hash << 15);
     
-    return (int)fabs(hash % taille);
+    return (int)fabs(hash % 50);
+}*/
+
+int funHash(char* str, int taille){
+	char* new=strdup(str);
+	toLowerStr(new);
+	long hash=new[0];
+	int i=1;
+	int len = strlen(new);
+	for(i; i < len; ++i)
+		hash +=(((int)(89*pow(67,i)))%(50-i))*new[i];
+	hash=hash%50;
+	/*printf("%d \n",hash);*/
+	return hash;
 }
-
-
 /*Fonction utilisée dans la fonction funHash pour convertir les character string en son equivalent minuscule*/
 void toLowerStr(char *str){
 	int lenght = strlen(str);
@@ -151,6 +163,10 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 				printf("erreur ligne %d \n", G->ligne);
 				G=G->suiv;
 			}
+			free(bss);
+			free(data);
+			free(nouvInstr);
+			free(nouvSymb);
             		break;
 
 		case DONNE:
@@ -161,7 +177,7 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 			}
             		else if(strcmp(G->lexeme,".bss")==0){
 				S = INIT;
-				Sect=DATA;
+				Sect=BSS;
 				G=G->suiv;
 			}
 			else if(strcmp(G->lexeme,".text")==0){
@@ -181,6 +197,10 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 				printf("erreur symbole de directive arreter l'assemblage ligne %d \n", G->ligne);
 				G=G->suiv;
 			}
+			free(bss);
+			free(data);
+			free(nouvInstr);
+			free(nouvSymb);
             		break;
 
         	case DONNE_DATA:
@@ -297,13 +317,13 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 					}
 				}
 			}
-			printf("datjyga");
+			/*printf("datjyga");
 			free(nouvInstr);
 			printf("1");
 			free(bss);
 			printf("2");
 			free(nouvSymb);
-			printf("3 \n");
+			printf("3 \n");*/
 			S=INIT;
             		break;
 
@@ -339,6 +359,10 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 				S = ETIQUETTE;
 			}
             		else S = INSTRUCTION_TEXT;
+			free(bss);
+			free(data);
+			free(nouvInstr);
+			free(nouvSymb);
             		break;
 
         	case ETIQUETTE:/*prendre en compte le cas ou l'etiquette existe deja*/
@@ -386,8 +410,10 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 
         	case INSTRUCTION_TEXT:
 			Sect=TEXT;
-			toLowerStr(G->lexeme);
-			if(strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0){
+			toLowerStr(G->lexeme);/*passe toutes les instructions en miniscule*/
+			int position;
+			/*printf("postion %d \n",funHash(G->lexeme, taille));*/
+			if((tableau[funHash(G->lexeme, taille)].col==-1) || ((tableau[funHash(G->lexeme, taille)].col==-2) && (strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0)) || ((tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0))){
 				printf("erreur, l'instruction n'existe pas ligne %d \n", G->ligne);
 				File H=G;
 				while (G->ligne==H->ligne)
@@ -396,7 +422,11 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 				free(nouvInstr);
 			}
 			else{
-				*nouvInstr=creerInstruction(G->lexeme, G->categorie,tableau[funHash(G->lexeme, taille)].operands, G->ligne, dec_text);
+				if(strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)==0)
+					position=funHash(G->lexeme, taille);
+				else
+					position=tableau[funHash(G->lexeme, taille)].col;
+				*nouvInstr=creerInstruction(G->lexeme, G->categorie,tableau[position].operands, G->ligne, dec_text);
 				Inst=ajouterQueue(nouvInstr, Inst);
 				int i=0;
 				G=G->suiv;
@@ -406,7 +436,7 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 					}
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
-					else if(i>=tableau[funHash(G->lexeme, taille)].operands){
+					else if(i>=tableau[position].operands){
 						printf("erreur il y a trop d'opérande à l'instruction ligne %d \n", G->ligne);/*on garde que les premiers operandes*/
 						G=G->suiv;
 					}
@@ -415,17 +445,17 @@ void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG D
 						nouvInstr->op[i].lexeme=strdup(G->lexeme);
 						i+=1;
 						G=G->suiv;
-					}
+					}/*probleme alternance operande virgule*/
 				}
 				if(i<nouvInstr->nbop)
 					printf("erreur il n'y a pas assez d'opérande à l'instruction ligne %d \n", nouvInstr->ligne);
 				else
 					dec_text+=4;
-				free(data);
-				free(bss);
-				free(nouvSymb);
-				S=INIT;
 			}
+			/*free(data);
+			free(bss);
+			free(nouvSymb);*/
+			S=INIT;
             	break;  
     	}     
 	}while(G!=F->suiv);
@@ -444,18 +474,33 @@ void gramAnalyse(File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG Do2){
 	int nombreInstruc;
 	fscanf(dictionnaire, "%d",&nombreInstruc);    
 	if(nombreInstruc == EOF) return;/*gestion erreurs*/
-	Dico hashTable[nombreInstruc];
+	Dico hashTable[60];
 	int index;
 	char* instruc=malloc(sizeof(*instruc));
 	char ty;
 	int ope;
 	int i = 0;
-	for(i; i<nombreInstruc; i++){		
+	int j=0;
+	for (i=0;i<60;i++)
+		hashTable[i].col=-1;
+	for(i=0; i<nombreInstruc; i++){		
         	fscanf(dictionnaire, "%s %c %d", instruc, &ty, &ope);
 		index = funHash(instruc,nombreInstruc);
-		hashTable[index].symbole=strdup(instruc);
-		hashTable[index].type=ty;
-		hashTable[index].operands=ope;
+		if(hashTable[index].col==-1){
+			hashTable[index].symbole=strdup(instruc);
+			hashTable[index].type=ty;
+			hashTable[index].operands=ope;
+			hashTable[index].col=-2;
+		}
+		else if(hashTable[index].col==-2) {
+			hashTable[index].col=50+j;
+			hashTable[50+j].col=-2;
+			index=50+j;
+			j+=1;
+			hashTable[index].symbole=strdup(instruc);
+			hashTable[index].type=ty;
+			hashTable[index].operands=ope;
+		}
 	}
 	fclose(dictionnaire);
 	

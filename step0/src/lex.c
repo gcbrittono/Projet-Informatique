@@ -288,7 +288,7 @@ void lex_read_line( char *line, int nline, File* F) {
 				if (isalpha(*c)) S = SYMBOLE;
 				else if (*c == ':'||*c == '.') S = TERM;
 				else if (isspace(*c)) S = TERM;
-				else printf ("Erreur SYMBOLE");
+				else printf ("Erreur SYMBOLE ligne");
 				break;
 		
 			case DIRECTIVE:
@@ -393,8 +393,6 @@ void lex_load_file( char *file, unsigned int *nlines, File* F ) {
         	if ( NULL != fgets( line, STRLEN-1, fp ) ) {
             		line[strlen(line)-1] = '\0';  /* eat final '\n' */
             		(*nlines)++;
-			/*printf("%d \n",*nlines);*/
-
             		if ( 0 != strlen(line) ) {
                 		lex_read_line(line,*nlines,F);
             		}

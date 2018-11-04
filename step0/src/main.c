@@ -74,7 +74,6 @@ int main ( int argc, char *argv[] ) {
     /* ---------------- do the lexical analysis -------------------*/
 	File F=creerFile();
     lex_load_file( file, &nlines,&F );
-	printf("ok \n");
 
 	File P=F;
 	do{
