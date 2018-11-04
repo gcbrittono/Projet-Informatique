@@ -88,6 +88,12 @@ int main ( int argc, char *argv[] ) {
 	ListeG Do2=NULL;
 
 	gramAnalyse(F, Inst, Symb, Do1, Do2);
+	printf("ok");
+	ListeG A=Inst;
+	/*do{
+		afficherListe(A->pval);
+		A=A->suiv;
+	}while (A!=Inst->suiv);*/
 	
     DEBUG_MSG("source code got %d lines",nlines);
 

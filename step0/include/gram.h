@@ -99,6 +99,8 @@ Symbole creerSymbole(char* lex,	etat cat, int lig, Section section ,int dec);
 
 ListeG ajouterQueue(void* e, ListeG L);
 
+void afficherListe(Instruction* L);
+
 int funHash(char* str, int taille);
 
 void toLowerStr(char *str);

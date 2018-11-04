@@ -77,7 +77,14 @@ ListeG ajouterQueue(void* e, ListeG L){
 	return A;
 }
 
-
+/*afiche le premier élément de la file*/
+void afficherListe(Instruction* L){
+	printf("Ligne %d : [ SYMBOLE ] : %s : nombre operande : %d : opérandes : ",L->ligne, L->nom, L->nbop);
+	int i=0;
+	for(i;i<L->nbop;i++)
+		printf("%s \n",L->op[i].lexeme);
+	printf("-----------------------------------------------------------------------------------");
+}
 /*lex_t defiler(File F){
 	if (estVide(F))
 		return NULL;
