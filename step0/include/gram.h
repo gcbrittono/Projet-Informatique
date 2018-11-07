@@ -89,25 +89,27 @@ ListeG creerListeG();
 
 int listeVide(ListeG L);
 
-Instruction creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec/*, ListeG operande*/);
+Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec/*, ListeG operande*/);
 
-Donnee1 creerDonnee1(char* lex, etat cat, int nombop, int lig, int dec, ListeG operande);
+Donnee1* creerDonnee1(char* lex, etat cat, int nombop, int lig, int dec, ListeG operande);
 
-Donnee2 creerDonnee2(char* lex, etat cat, int nombop, int lig, int dec, int val);
+Donnee2* creerDonnee2(char* lex, etat cat, int nombop, int lig, int dec, int val);
 
-Symbole creerSymbole(char* lex,	etat cat, int lig, Section section ,int dec);
+Symbole* creerSymbole(char* lex, etat cat, int lig, Section section ,int dec);
 
 ListeG ajouterQueue(void* e, ListeG L);
 
-void afficherListe(Instruction* L);
+void afficherInst(Instruction* L);
+
+void afficherDo1(Donnee1* L);
 
 int funHash(char* str, int taille);
 
 void toLowerStr(char *str);
 
-void machine_a_etat_gram (File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG Do2, Dico tableau[], int taille);
+void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille);
 
-void gramAnalyse(File F, ListeG Inst, ListeG Symb, ListeG Do1, ListeG Do2);
+void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2);
 
 /*File defiler*/
 

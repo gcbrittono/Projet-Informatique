@@ -87,14 +87,18 @@ int main ( int argc, char *argv[] ) {
 	ListeG Do1=NULL;
 	ListeG Do2=NULL;
 
-	gramAnalyse(F, Inst, Symb, Do1, Do2);
-	printf("ok");
+	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2);
 	ListeG A=Inst;
-	/*do{
-		afficherListe(A->pval);
+	do{
+		afficherInst((Instruction*)(A->suiv->pval) );
 		A=A->suiv;
-	}while (A!=Inst->suiv);*/
-	
+	}while (A!=Inst);
+printf("\nAffichage section DATA\n");
+	ListeG B=Do1;
+	do{
+		afficherInst((Donnee1*)(B->suiv->pval) );
+		B=B->suiv;
+	}while (B!=Do1);
     DEBUG_MSG("source code got %d lines",nlines);
 
     /* ---------------- Free memory and terminate -------------------*/
