@@ -26,4 +26,4 @@ lunchtime:
 .bss 
 menu:
     .space 24
-(:)(,,"""\""""
+

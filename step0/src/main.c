@@ -88,17 +88,54 @@ int main ( int argc, char *argv[] ) {
 	ListeG Do2=NULL;
 
 	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2);
-	ListeG A=Inst;
-	do{
-		afficherInst((Instruction*)(A->suiv->pval) );
-		A=A->suiv;
-	}while (A!=Inst);
+
+/* ---------------- Affichage instructions -------------------*/
+	printf("\nAffichage section TEXT\n");
+	if(listeVide(Inst))
+		printf("la section TEXT est vide");
+	else{
+		ListeG A=Inst;
+		do{
+			afficherInst((Instruction*)(A->suiv->pval) );
+			A=A->suiv;
+		}while (A!=Inst);
+	}
+
+/* ---------------- Affichage données data -------------------*/
 printf("\nAffichage section DATA\n");
-	ListeG B=Do1;
-	do{
-		afficherInst((Donnee1*)(B->suiv->pval) );
-		B=B->suiv;
-	}while (B!=Do1);
+	if(listeVide(Do1))
+		printf("la section DATA est vide");
+	else{
+		ListeG B=Do1;
+		do{
+			afficherDo1((Donnee1*)(B->suiv->pval) );
+			B=B->suiv;
+		}while (B!=Do1);
+	}
+/* ---------------- Affichage données bss-------------------*/
+printf("\nAffichage section BSS\n");
+	if(listeVide(Do2))
+		printf("la section BSS est vide");
+	else{
+		ListeG C=Do2;
+		do{
+			afficherDo2((Donnee2*)(C->suiv->pval) );
+			C=C->suiv;
+		}while (C!=Do2);
+	}
+
+/* ---------------- Affichage etiquettes-------------------*/
+printf("\nAffichage section SYMBOLE\n");
+	if(listeVide(Inst))
+		printf("la section SYMBOLE est vide");
+	else{
+		ListeG D=Symb;
+		do{
+			afficherSymb((Symbole*)(D->suiv->pval) );
+			D=D->suiv;
+		}while (D!=Symb);
+	}
+
     DEBUG_MSG("source code got %d lines",nlines);
 
     /* ---------------- Free memory and terminate -------------------*/

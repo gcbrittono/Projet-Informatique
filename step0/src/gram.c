@@ -77,28 +77,58 @@ ListeG ajouterQueue(void* e, ListeG L){
 	return A;
 }
 
-/*afiche la liste d'instruction*/
+/*affiche la liste d'instruction*/
 void afficherInst(Instruction* L){
 	printf("Décalage %d : [ SYMBOLE ] : %s : nombre operande : %d : opérandes : ",L->decalage, L->nom, L->nbop);
 	int i=0;
 	for(i;i<=L->nbop-1;i++)
-		printf("%s ",L->op[i].lexeme);
+		printf(" %s / ",L->op[i].lexeme);
 	printf("\n---------------------------------------------------------------------------\n");
 }
 
-/*afiche la liste d'instruction*/
+/*affiche la liste de donnée data*/
 void afficherDo1(Donnee1* L){
 	printf("Décalage %d : [ SYMBOLE ] : %s : nombre operande : %d : opérandes : ",L->decalage, L->lexeme, L->nbop);
-	ListeG o=L->op->suiv;
+	ListeG o=L->op;
 	Opedonnee* d;
-	for(o;o==L->op;o=o->suiv){
+	int i=0;
+	for(i;i<=L->nbop-1;i++){
+		d=(Opedonnee*)(o->pval);
+		printf(" %u / ",d);
+		o=o->suiv;
+	}
+	/*for(o;o==L->op;o=o->suiv){
 		d=(Opedonnee*)(o->pval);
 		printf("%u ",*d);
 	}
 	d=(Opedonnee*)(o->pval);
-	printf("%u ",*d);
+	printf("%u ",*d);*/
 	printf("\n---------------------------------------------------------------------------\n");
 }
+/*affichage de la liste de données bss*/
+void afficherDo2(Donnee2* L){
+	printf("Décalage %d : [ SYMBOLE ] : %s : nombre operande : %d : opérandes : %d",L->decalage, L->lexeme, L->nbop, L->valeur);
+	printf("\n---------------------------------------------------------------------------\n");
+}
+
+/*affichage de la liste de symboles*/
+void afficherSymb(Symbole* L){
+	char s[5];
+	switch(L->sect){
+		case 0:
+			strcpy(s,"DATA");
+			break;
+		case 1:
+			strcpy(s,"BSS");
+			break;
+		case 2:
+			strcpy(s,"TEXT");
+			break;
+	}
+	printf("Section %s : [ ETIQUETTE ] : %s : décalage : %d",s, L->lexeme, L->decalage);
+	printf("\n---------------------------------------------------------------------------\n");
+}
+
 /*lex_t defiler(File F){
 	if (estVide(F))
 		return NULL;

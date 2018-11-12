@@ -103,6 +103,10 @@ void afficherInst(Instruction* L);
 
 void afficherDo1(Donnee1* L);
 
+void afficherDo2(Donnee2* L);
+
+void afficherSymb(Symbole* L);
+
 int funHash(char* str, int taille);
 
 void toLowerStr(char *str);
