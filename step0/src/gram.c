@@ -9,6 +9,41 @@
 #include <math.h>
 
 
+/*Fonction pour faire le mangement des pseudo-instructions */
+
+
+Instruction* pseudoInstruction(Dico tableau[], File F, ListeG* Inst, int dec_text, int position){
+	File G = F->suiv;
+	
+
+	if (strcmp(p->symbole,"lw")==0){
+		*Inst=ajouterQueue(creerInstruction("lui", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+		*Inst=ajouterQueue(creerInstruction("lw", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"sw")==0){
+		*Inst=ajouterQueue(creerInstruction("lui", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+		*Inst=ajouterQueue(creerInstruction("sw", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"nop")==0){
+		*Inst=ajouterQueue(creerInstruction("sll", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"move")==0){
+		*Inst=ajouterQueue(creerInstruction("add", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"li")==0){
+		*Inst=ajouterQueue(creerInstruction("addi", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"blt")==0){
+		*Inst=ajouterQueue(creerInstruction("slt", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+		*Inst=ajouterQueue(creerInstruction("bne", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}	
+}
+
+
+
+
+
 /*fonction qui crée une liste*/
 ListeG creerListeG(){
 	return NULL;
@@ -469,6 +504,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 	if(nombreInstruc == EOF) return;/*gestion erreurs*/
 	Dico hashTable[60];
 	int index;
+        typ_op  typedoperande[2];
 	char* instruc=malloc(sizeof(*instruc));
 	char ty;
 	int ope;
@@ -477,12 +513,15 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 	for (i=0;i<60;i++)
 		hashTable[i].col=-1;
 	for(i=0; i<nombreInstruc; i++){		
-        	fscanf(dictionnaire, "%s %c %d", instruc, &ty, &ope);
+        	fscanf(dictionnaire, "%s %c %d %s %s %s", instruc, &ty, &ope, typedoperande[0], typedoperande[1], typedoperande[2]);
 		index = funHash(instruc,nombreInstruc);
 		if(hashTable[index].col==-1){
 			hashTable[index].symbole=strdup(instruc);
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
+			hashTable[index].typeOperande[0]=typedoperande[0];
+			hashTable[index].typeOperande[1]=typedoperande[1];
+			hashTable[index].typeOperande[2]=typedoperande[2];
 			hashTable[index].col=-2;
 		}
 		else if(hashTable[index].col==-2) {
@@ -493,6 +532,9 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 			hashTable[index].symbole=strdup(instruc);
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
+			hashTable[index].typeOperande[0]=typedoperande[0];
+			hashTable[index].typeOperande[1]=typedoperande[1];
+			hashTable[index].typeOperande[2]=typedoperande[2];
 		}
 	}
 	fclose(dictionnaire);

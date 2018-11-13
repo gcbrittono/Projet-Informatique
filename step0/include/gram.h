@@ -12,12 +12,21 @@
 /*Définition de macro etats*/
 typedef enum {DATA, BSS, TEXT} Section;
 
+/*Definition des types des operans pour le dictionnaire*/
+typedef enum {Reg, Imm, sa, Bas, Rel, Abs} typ_op;
+
+/*Definition de la fonction pour faire l'analyse des pseudoinstuctions*/
+
+Dico* pseudoInstruction(Dico* p);
+
+
 /*Definition de structure pour charger les donees de l'instruction dans un dictionnaire, il y a les donnes de symbole de l'instruction, type soit r,i ou j et le nombre des operands*/
 typedef struct DictionnaireIn{ 
 	char* symbole;
     	char type;
     	int operands;
 	int col;
+	typ_op typeOperande[2]; 
 } Dico;
 
 /*Liste circulaire Générique*/
