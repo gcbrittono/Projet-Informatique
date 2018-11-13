@@ -170,7 +170,6 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 	int dec_data=0;
 	/*int dec_symb=0;*/
 	/*pour tester si l'étiquette existe deja*/
-	ListeG test=*Symb;
 	int k;
 	/*fin test*/
 	File G = F->suiv;
@@ -372,11 +371,12 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 
         	case ETIQUETTE:/*prendre en compte le cas ou l'etiquette existe deja*/
 			k=0;
+			ListeG test=*Symb;
 			if (!listeVide(*Symb)){
 				do{	
 					test=test->suiv;
 					if( strcmp(G->lexeme,((Symbole*)(test->pval))->lexeme)==0){
-						printf("erreur cette étiquette existe deja");
+						printf("erreur l'étiquette existe deja ligne %d \n",G->ligne);
 						k+=1;
 						}
 				}while(test!=(*Symb)->suiv);

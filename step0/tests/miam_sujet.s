@@ -21,6 +21,7 @@ byebye:
 .data
 lunchtime: 
     .word 12
+boucle:
     .word menu
     .asciiz "ils disent : \"au ru!\""
 .bss 
