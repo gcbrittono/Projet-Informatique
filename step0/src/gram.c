@@ -20,13 +20,14 @@ int listeVide(ListeG L){
 }
 
 
-Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig,unsigned int dec /*,ListeG operande*/){
+Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig,unsigned int dec , char type/*,ListeG operande*/){
 	Instruction* p=malloc(sizeof(*p));
 	p->nom=strdup(lex);
 	p->type=cat;
 	p->nbop=nombop;
 	p->ligne=lig;
 	p->decalage=dec;
+	p->type_inst=type;
 	/*p.op=operande;*/
 	return p;
 }
@@ -424,8 +425,10 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					position=funHash(G->lexeme, taille);
 				else
 					position=tableau[funHash(G->lexeme, taille)].col;
-				*Inst=ajouterQueue(creerInstruction(G->lexeme, G->categorie,tableau[position].operands, G->ligne, dec_text), *Inst);
+				*Inst=ajouterQueue(creerInstruction(G->lexeme, G->categorie,tableau[position].operands, G->ligne, dec_text,tableau[position].type), *Inst);
 				int i=0;
+				if (strcmp(G->lexeme,"lw")==0 || strcmp(G->lexeme,"sw")==0 || strcmp(G->lexeme,"blt")==0)
+					dec_text+=4;
 				G=G->suiv;
 				while (G->ligne==((Instruction*)((*Inst)->pval))->ligne){
 					if(G->categorie==VIRGULE){

@@ -34,6 +34,7 @@ typedef struct {
 typedef struct {
 	char* nom;
 	etat type;
+	char type_inst;
 	int nbop;
 	int ligne;
 	unsigned int decalage;
@@ -89,7 +90,7 @@ ListeG creerListeG();
 
 int listeVide(ListeG L);
 
-Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec/*, ListeG operande*/);
+Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec, char type/*, ListeG operande*/);
 
 Donnee1* creerDonnee1(char* lex, etat cat, int nombop, int lig, int dec, ListeG operande);
 

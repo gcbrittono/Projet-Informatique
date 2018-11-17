@@ -241,7 +241,7 @@ void lex_read_line( char *line, int nline, File* F) {
 				}
 				else if (iscntrl(*c)){
 					if (*c == '\n') S = SAUT_DE_LIGNE;
-					else  printf ("Erreur INIT ");
+					else  printf ("Erreur INIT ligne %d\n",nline);
 				}
 				else{
 					switch(*c){
@@ -273,10 +273,13 @@ void lex_read_line( char *line, int nline, File* F) {
 							S = CITATION;
 							break;
 						case '-':
-							S = DECIMAL;
+							S = SIGNE;
+							break;
+						case '+':
+							S = SIGNE;
 							break;
 						default:
-						 	printf ("Erreur INIT ");
+						 	printf ("Erreur INIT ligne %d\n",nline);
 					}
 				}
 				break;
@@ -288,70 +291,76 @@ void lex_read_line( char *line, int nline, File* F) {
 				if (isalpha(*c)) S = SYMBOLE;
 				else if (*c == ':'||*c == '.') S = TERM;
 				else if (isspace(*c)) S = TERM;
-				else printf ("Erreur SYMBOLE ligne");
+				else printf ("Erreur SYMBOLE ligne %d\n",nline);
 				break;
 		
 			case DIRECTIVE:
 				if (isalpha(*c)) S = DIRECTIVE;
 				else if(isspace(*c)) S = TERM;
-				else printf ("Erreur DIRECTIVE");
+				else printf ("Erreur DIRECTIVE ligne %d\n",nline);
 				break;
 		
 			case REGISTRE:
 				if (isalnum(*c)) S = REGISTRE;
 				else if (*c == ',') S = TERM;
 				else if (isspace(*c)) S = TERM;
-				else printf ("Erreur REGISTRE");
+				else printf ("Erreur REGISTRE ligne %d\n",nline);
 				break;
 		
 			case DEUX_POINTS:
 				if (isspace(*c)) S = TERM;
-				else printf ("Erreur DEUX-POINTS");
+				else printf ("Erreur DEUX-POINTS ligne %d\n",nline);
 				break;
 		
 			case PARENTHESE:
 				if (isspace(*c)) S = TERM;
-				else printf ("Erreur PARENTHESE");
+				else printf ("Erreur PARENTHESE ligne %d\n",nline);
 				break;
 
 			case VIRGULE:
 				if (isspace(*c)) S = TERM;
-				else printf ("Erreur VIRGULE");
+				else printf ("Erreur VIRGULE ligne %d\n",nline);
 				break;
 		
 			case SAUT_DE_LIGNE:
 				S = TERM;
 				break;
+
+			case SIGNE:
+				if(isdigit(*c))
+					S = (*c=='0')?DECIMAL_ZEROS : DECIMAL;	
+				else printf ("Erreur SIGNE ligne %d\n",nline);
+				break;
 		
 			case DECIMAL_ZEROS:
-				if(*c == 'x') S = HEXA_DEBUT;
+				if(*c == 'x'||*c == 'X' ) S = HEXA_DEBUT;
 				else if (*c == '\n') S = TERM;
 				else if (isspace(*c)) S = TERM;
-				if (isdigit(*c)||((0<=*c)<=7))S = OCTATE;
-				else printf("Erreur DECIMAL-ZEROS");
+				else if (isdigit(*c)&&(0<=(*c)<=7))S = OCTATE;
+				else printf("Erreur DECIMAL-ZEROS ligne %d\n",nline);
 				break;
 
 			case HEXA_DEBUT:
 				if(isxdigit(*c)) S = HEXA;
-				else printf("Erreur HEXA_DEBUT");
+				else printf("Erreur HEXA_DEBUT ligne %d\n",nline);
 				break;
 
 			case OCTATE:
-				if (isdigit(*c)||((0<=*c)<=7))S = OCTATE;
+				if (isdigit(*c)&&(0<=(*c)<=7))S = OCTATE;
 				else if(isspace(*c) && *c == '\n') S = TERM;
-				else printf("Erreur OCTATE");
+				else printf("Erreur OCTATE ligne %d\n",nline);
 				break;
 
 			case DECIMAL:
 				if(isdigit(*c)) S = DECIMAL;
 				else if(isspace(*c) && *c == '\n') S = TERM;
-				else printf("Erreur DECIMAL");
+				else printf("Erreur DECIMAL ligne %d\n",nline);
 				break;
 
 			case HEXA:
 				if(isxdigit(*c)) S = HEXA;
 				else if(isspace(*c) && *c == '\n') S = TERM;
-				else printf("Erreur HEXA");
+				else printf("Erreur HEXA ligne %d\n",nline);
 				break;
 			case TERM:
 				break;	
