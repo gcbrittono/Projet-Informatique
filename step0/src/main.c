@@ -87,6 +87,16 @@ int main ( int argc, char *argv[] ) {
 	ListeG Do1=NULL;
 	ListeG Do2=NULL;
 
+/*<<<<<<< HEAD*/
+	gramAnalyse(F, Inst, Symb, Do1, Do2);
+	printf("ok");
+	/*ListeG A=Inst;*/
+	/*do{
+		afficherListe(A->pval);
+		A=A->suiv;
+	}while (A!=Inst->suiv);*/
+	
+/*=======*/
 	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2);
 
 /* ---------------- Affichage instructions -------------------*/
@@ -136,6 +146,7 @@ printf("\nAffichage section SYMBOLE\n");
 		}while (D!=Symb);
 	}
 
+/*>>>>>>> be9a190610ace8a07f99d60d20d6de9a29f85e0e*/
     DEBUG_MSG("source code got %d lines",nlines);
 
     /* ---------------- Free memory and terminate -------------------*/

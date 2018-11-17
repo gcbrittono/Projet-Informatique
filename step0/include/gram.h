@@ -17,7 +17,7 @@ typedef enum {Reg, Imm, sa, Bas, Rel, Abs} typ_op;
 
 /*Definition de la fonction pour faire l'analyse des pseudoinstuctions*/
 
-Dico* pseudoInstruction(Dico* p);
+/*Dico* pseudoInstruction(Dico* p);*/
 
 
 /*Definition de structure pour charger les donees de l'instruction dans un dictionnaire, il y a les donnes de symbole de l'instruction, type soit r,i ou j et le nombre des operands*/
@@ -43,6 +43,7 @@ typedef struct {
 typedef struct {
 	char* nom;
 	etat type;
+    char typ_inst;
 	int nbop;
 	int ligne;
 	unsigned int decalage;

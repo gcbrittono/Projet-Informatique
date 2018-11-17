@@ -11,7 +11,7 @@
 
 /*Fonction pour faire le mangement des pseudo-instructions */
 
-
+/*
 Instruction* pseudoInstruction(Dico tableau[], File F, ListeG* Inst, int dec_text, int position){
 	File G = F->suiv;
 	
@@ -41,7 +41,7 @@ Instruction* pseudoInstruction(Dico tableau[], File F, ListeG* Inst, int dec_tex
 }
 
 
-
+*/
 
 
 /*fonction qui crée une liste*/
