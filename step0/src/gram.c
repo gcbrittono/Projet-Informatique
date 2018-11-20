@@ -9,41 +9,6 @@
 #include <math.h>
 
 
-/*Fonction pour faire le mangement des pseudo-instructions */
-
-/*
-Instruction* pseudoInstruction(Dico tableau[], File F, ListeG* Inst, int dec_text, int position){
-	File G = F->suiv;
-	
-
-	if (strcmp(p->symbole,"lw")==0){
-		*Inst=ajouterQueue(creerInstruction("lui", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-		*Inst=ajouterQueue(creerInstruction("lw", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-
-	}else if (strcmp(p->symbole,"sw")==0){
-		*Inst=ajouterQueue(creerInstruction("lui", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-		*Inst=ajouterQueue(creerInstruction("sw", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-
-	}else if (strcmp(p->symbole,"nop")==0){
-		*Inst=ajouterQueue(creerInstruction("sll", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-
-	}else if (strcmp(p->symbole,"move")==0){
-		*Inst=ajouterQueue(creerInstruction("add", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-
-	}else if (strcmp(p->symbole,"li")==0){
-		*Inst=ajouterQueue(creerInstruction("addi", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-
-	}else if (strcmp(p->symbole,"blt")==0){
-		*Inst=ajouterQueue(creerInstruction("slt", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-		*Inst=ajouterQueue(creerInstruction("bne", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
-
-	}	
-}
-
-
-*/
-
-
 /*fonction qui crée une liste*/
 ListeG creerListeG(){
 	return NULL;
@@ -55,13 +20,14 @@ int listeVide(ListeG L){
 }
 
 
-Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig,unsigned int dec /*,ListeG operande*/){
+Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig,unsigned int dec , char type/*,ListeG operande*/){
 	Instruction* p=malloc(sizeof(*p));
 	p->nom=strdup(lex);
 	p->type=cat;
 	p->nbop=nombop;
 	p->ligne=lig;
 	p->decalage=dec;
+	p->type_inst=type;
 	/*p.op=operande;*/
 	return p;
 }
@@ -204,6 +170,9 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 	int dec_bss=0;
 	int dec_data=0;
 	/*int dec_symb=0;*/
+	/*pour tester si l'étiquette existe deja*/
+	int k;
+	/*fin test*/
 	File G = F->suiv;
     	enum {INIT, DONNE, DONNE_DATA, DONNE_BSS, DEBUT,  ETIQUETTE, INSTRUCTION_TEXT};
     /*etat de l'automate*/
@@ -251,7 +220,9 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 				S = DONNE_BSS;
 			else{
 				printf("erreur symbole de directive arreter l'assemblage ligne %d \n", G->ligne);
-				G=G->suiv;
+				File K=G;
+				while (G->ligne==K->ligne)
+					G=G->suiv;
 			}
             		break;
 
@@ -397,22 +368,29 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
         	case DEBUT: 
             		if(G->suiv->categorie==DEUX_POINTS)
 				S = ETIQUETTE;
-            		else 
+            		else if(Sect==TEXT)
 				S = INSTRUCTION_TEXT;
+			else{
+				printf("erreur instruction n'est pas dans la section TEXT arreter l'assemblage ligne %d \n", G->ligne);
+				File O=G;
+				while (G->ligne==O->ligne)
+					G=G->suiv;
+			}
             		break;
 
         	case ETIQUETTE:/*prendre en compte le cas ou l'etiquette existe deja*/
-			/*;
-			ListeG test=Symb->suiv;
-			int k=0;
-			do{
-				if( strcmp(G->lexeme,test->pval->lexeme)==0){*//*a modifier*//*
-					printf("erreur cette étiquette existe deja");
-					k+=1;
-				}
-				test=test->suiv;
-			}while(test!=Symb->suiv);
-			if(k==0){*/
+			k=0;
+			ListeG test=*Symb;
+			if (!listeVide(*Symb)){
+				do{	
+					test=test->suiv;
+					if( strcmp(G->lexeme,((Symbole*)(test->pval))->lexeme)==0){
+						printf("erreur l'étiquette existe deja ligne %d \n",G->ligne);
+						k+=1;
+						}
+				}while(test!=(*Symb)->suiv);
+			}
+			if(k==0){
 				*Symb=ajouterQueue(creerSymbole(G->lexeme, G->categorie, G->ligne, Sect ,0), *Symb);
 				switch(Sect){
 					case(TEXT):
@@ -433,8 +411,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 							}
 						break;
 				}
-			/*}
-			else*/		
+			}	
 			G=G->suiv->suiv;
 			S=INIT;
             		break;
@@ -456,8 +433,10 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					position=funHash(G->lexeme, taille);
 				else
 					position=tableau[funHash(G->lexeme, taille)].col;
-				*Inst=ajouterQueue(creerInstruction(G->lexeme, G->categorie,tableau[position].operands, G->ligne, dec_text), *Inst);
+				*Inst=ajouterQueue(creerInstruction(G->lexeme, G->categorie,tableau[position].operands, G->ligne, dec_text,tableau[position].type), *Inst);
 				int i=0;
+				if (strcmp(G->lexeme,"lw")==0 || strcmp(G->lexeme,"sw")==0 || strcmp(G->lexeme,"blt")==0)
+					dec_text+=4;
 				G=G->suiv;
 				while (G->ligne==((Instruction*)((*Inst)->pval))->ligne){
 					if(G->categorie==VIRGULE){
@@ -504,7 +483,6 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 	if(nombreInstruc == EOF) return;/*gestion erreurs*/
 	Dico hashTable[60];
 	int index;
-        typ_op  typedoperande[2];
 	char* instruc=malloc(sizeof(*instruc));
 	char ty;
 	int ope;
@@ -513,15 +491,12 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 	for (i=0;i<60;i++)
 		hashTable[i].col=-1;
 	for(i=0; i<nombreInstruc; i++){		
-        	fscanf(dictionnaire, "%s %c %d %s %s %s", instruc, &ty, &ope, typedoperande[0], typedoperande[1], typedoperande[2]);
+        	fscanf(dictionnaire, "%s %c %d", instruc, &ty, &ope);
 		index = funHash(instruc,nombreInstruc);
 		if(hashTable[index].col==-1){
 			hashTable[index].symbole=strdup(instruc);
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
-			hashTable[index].typeOperande[0]=typedoperande[0];
-			hashTable[index].typeOperande[1]=typedoperande[1];
-			hashTable[index].typeOperande[2]=typedoperande[2];
 			hashTable[index].col=-2;
 		}
 		else if(hashTable[index].col==-2) {
@@ -532,9 +507,6 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 			hashTable[index].symbole=strdup(instruc);
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
-			hashTable[index].typeOperande[0]=typedoperande[0];
-			hashTable[index].typeOperande[1]=typedoperande[1];
-			hashTable[index].typeOperande[2]=typedoperande[2];
 		}
 	}
 	fclose(dictionnaire);

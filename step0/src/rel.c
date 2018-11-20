@@ -45,7 +45,7 @@ table_relocation  instruction_find(Instruction* inst){
     tab_rel.addr_relative = inst->decalage;
     /*tab_rel.pointeur = inst*/
 ;
-    switch(inst->typ_inst) {
+    switch(inst->type_inst) {
 
    case 'R'  :
       tab_rel.mode_relocation = 2;
@@ -68,21 +68,113 @@ table_relocation  instruction_find(Instruction* inst){
 
 
 /*Fonction pour parcourir une liste et trouver un pseudoinstruction*/
-ListeG* trouver_pseudoinstruction(/*Instruction* inst*/ File listeInstr,Dico tableau[],int dec_text, int position){
+ListeG* trouver_pseudoinstruction(Instruction* listeInstr,Dico tableau[],int dec_text, int position){
 	/*Liste pour aficher tous les pseudoinstructions trouvé*/	
-	ListeG* tableu_pseudoInstr;
-	Instruction *inst=malloc(sizeof(*inst));;
 	
 	while(listeInstr->suiv != NULL){
-		*inst = creerInstruction(listeInstr->lexeme, listeInstr->categorie,tableau[position].operands, listeInstr->ligne, dec_text);
+;
 		if(inst->nom == "nop"||"lw"||"sw"||"move"||"neg"||"li"||"blt")
-			tableu_pseudoInstr = ajouterQueue(inst,tableu_pseudoInstr);
+			return listeInstr;
 	}
 
 	return tableu_pseudoInstr;
 }
 
 
+
+/*Fonction pour remplacer un autre instruction dans la liste*/
+remplacer_instr(Instruction* instr, char* nom_instr_final, int nombop_instr_final, char type_instr_final, ListeG* listeInstr){
+	instr2->nom = nom_instr_final;
+	instr2->nombop = nombop_instr_final;
+	instr2->type = type_instr_final;
+
+	
+
+	(listeInstr->pval) = instr2; 	
+
+
+ListeG ajouterQueue(void* e, ListeG L){
+	ListeG A=calloc(1,sizeof(A)/*sizeof(*e)+sizeof(A->suiv)*/);
+	if (A==NULL)
+		return NULL;
+	(A->pval)=e;
+	if (listeVide(L))
+		A->suiv=A;
+	else{
+		A->suiv=L->suiv;
+		L->suiv=A;
+	}
+	return A;
+}
+
+}
+
+
+
+/*fonction pour faire la lecture pseudoinstruction*/
+
+lecturePseudoInstruc (Instruction* instr, ListeG* listeInstr){
+
+	switch (instr->nom)
+		case "nop"
+			remplacer_instr(instr,instr2,listeIntsr);
+			break;
+		case "lw"
+
+			break;
+		case "sw"
+
+			break;
+		case "move"
+
+			break;
+		case "neg"
+
+			break;
+		case "li"
+
+			break;
+		case "blt"
+
+			break;
+
+}
+
+
+
+/*Fonction pour faire le mangement des pseudo-instructions */
+
+/*
+Instruction* pseudoInstruction(Dico tableau[], File F, ListeG* Inst, int dec_text, int position){
+	File G = F->suiv;
+	
+
+	if (strcmp(p->symbole,"lw")==0){
+		*Inst=ajouterQueue(creerInstruction("lui", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+		*Inst=ajouterQueue(creerInstruction("lw", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"sw")==0){
+		*Inst=ajouterQueue(creerInstruction("lui", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+		*Inst=ajouterQueue(creerInstruction("sw", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"nop")==0){
+		*Inst=ajouterQueue(creerInstruction("sll", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"move")==0){
+		*Inst=ajouterQueue(creerInstruction("add", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"li")==0){
+		*Inst=ajouterQueue(creerInstruction("addi", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}else if (strcmp(p->symbole,"blt")==0){
+		*Inst=ajouterQueue(creerInstruction("slt", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+		*Inst=ajouterQueue(creerInstruction("bne", "SYMBOLE",tableau[position].operands, G->ligne, dec_text), *Inst);
+
+	}	
+}
+
+
+*/
 
 
 
