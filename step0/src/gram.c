@@ -220,7 +220,9 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 				S = DONNE_BSS;
 			else{
 				printf("erreur symbole de directive arreter l'assemblage ligne %d \n", G->ligne);
-				G=G->suiv;
+				File K=G;
+				while (G->ligne==K->ligne)
+					G=G->suiv;
 			}
             		break;
 
@@ -366,8 +368,14 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
         	case DEBUT: 
             		if(G->suiv->categorie==DEUX_POINTS)
 				S = ETIQUETTE;
-            		else 
+            		else if(Sect==TEXT)
 				S = INSTRUCTION_TEXT;
+			else{
+				printf("erreur instruction n'est pas dans la section TEXT arreter l'assemblage ligne %d \n", G->ligne);
+				File O=G;
+				while (G->ligne==O->ligne)
+					G=G->suiv;
+			}
             		break;
 
         	case ETIQUETTE:/*prendre en compte le cas ou l'etiquette existe deja*/
