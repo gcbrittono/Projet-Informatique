@@ -12,21 +12,12 @@
 /*Définition de macro etats*/
 typedef enum {DATA, BSS, TEXT} Section;
 
-/*Definition des types des operans pour le dictionnaire*/
-typedef enum {Reg, Imm, sa, Bas, Rel, Abs} typ_op;
-
-/*Definition de la fonction pour faire l'analyse des pseudoinstuctions*/
-
-/*Dico* pseudoInstruction(Dico* p);*/
-
-
 /*Definition de structure pour charger les donees de l'instruction dans un dictionnaire, il y a les donnes de symbole de l'instruction, type soit r,i ou j et le nombre des operands*/
 typedef struct DictionnaireIn{ 
 	char* symbole;
     	char type;
     	int operands;
 	int col;
-	typ_op typeOperande[2]; 
 } Dico;
 
 /*Liste circulaire Générique*/
@@ -43,7 +34,7 @@ typedef struct {
 typedef struct {
 	char* nom;
 	etat type;
-    char typ_inst;
+	char type_inst;
 	int nbop;
 	int ligne;
 	unsigned int decalage;
@@ -99,7 +90,7 @@ ListeG creerListeG();
 
 int listeVide(ListeG L);
 
-Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec/*, ListeG operande*/);
+Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec, char type/*, ListeG operande*/);
 
 Donnee1* creerDonnee1(char* lex, etat cat, int nombop, int lig, int dec, ListeG operande);
 
@@ -128,4 +119,3 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2);
 /*File defiler*/
 
 #endif 
-
