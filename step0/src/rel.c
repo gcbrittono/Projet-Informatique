@@ -131,7 +131,6 @@ void pseudoInstruction( ListeG* instr){
 		o[1]=strdup(((Instruction*)((*instr)->pval))->op[1]);
 		typop[0]=((Instruction*)((*instr)->pval))->op[0].categorie;
 		typop[1]=((Instruction*)((*instr)->pval))->op[1].categorie;
-		remplacer_instr(*instr, "lui", 1, 'I',o,typop);
 		*instr=inserer(creerInstruction("lw", ((Instruction*)((*instr)->pval))->type, 2, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=((Instruction*)((*instr)->pval))->op[0].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
@@ -142,15 +141,14 @@ void pseudoInstruction( ListeG* instr){
 		strcat(mot,((Instruction*)((*instr)->pval))->op[0].lexeme);
 		strcat(mot,")");
 		((Instruction*)((*instr)->suiv->pval))->op[1].lexeme=strdup(mot);
+		remplacer_instr(*instr, "lui", 2, 'I',o,typop);
 /*faire la relocation ici pour les deux instructions*/
-		*instr=(*instr)->suiv;
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"sw")==0){
 		o[0]=strdup("$1");
 		o[1]=strdup(((Instruction*)((*instr)->pval))->op[1].lexeme);
 		typop[0]=((Instruction*)((*instr)->pval))->op[0].categorie;
 		typop[1]=((Instruction*)((*instr)->pval))->op[1].categorie;
-		remplacer_instr(*instr, "lui", 2, 'I',o, typop);
 		*instr=inserer(creerInstruction("sw", ((Instruction*)((*instr)->pval))->type, 2, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=((Instruction*)((*instr)->pval))->op[0].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
@@ -159,8 +157,9 @@ void pseudoInstruction( ListeG* instr){
 		strcpy(mot,((Instruction*)((*instr)->pval))->op[1].lexeme);
 		strcat(mot,"($1)");
 		((Instruction*)((*instr)->suiv->pval))->op[1].lexeme=strdup(mot);
+		remplacer_instr(*instr, "lui", 2, 'I',o, typop);
+		
 /*faire la relocation ici pour les deux instructions*/
-		*instr=(*instr)->suiv;
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"nop")==0){
 		o[0]=strdup("$0");
@@ -196,7 +195,6 @@ void pseudoInstruction( ListeG* instr){
 		typop[0]=REGISTRE;
 		typop[1]=((Instruction*)((*instr)->pval))->op[0].categorie;
 		typop[2]=((Instruction*)((*instr)->pval))->op[1].categorie;
-		remplacer_instr(*instr, "slt", 3, 'R',o, typop);
 		*instr=inserer(creerInstruction("bne", ((Instruction*)((*instr)->pval))->type, 3, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=REGISTRE;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup("$1");
@@ -204,7 +202,9 @@ void pseudoInstruction( ListeG* instr){
 		((Instruction*)((*instr)->suiv->pval))->op[1].lexeme=strdup("$0");
 		((Instruction*)((*instr)->suiv->pval))->op[2].categorie=((Instruction*)((*instr)->pval))->op[2].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[2].lexeme=strdup(((Instruction*)((*instr)->pval))->op[2].lexeme);
-		*instr=(*instr)->suiv;
+		remplacer_instr(*instr, "slt", 3, 'R',o, typop);
+		
+		
 /*faire la relocation ici*/
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"neg")==0){
@@ -222,21 +222,26 @@ void pseudoInstruction( ListeG* instr){
 
 
 
-void rel(ListeG* Instruct, ListeG Data, ListeG* RelocInst, ListeG* RelocData){
+void rel(ListeG* Instruct, ListeG Data, ListeG Etiquette, ListeG* RelocInst, ListeG* RelocData){
 	registres tab[32];
 	chargeRegistre(tab);
+
 	if(listeVide(*Instruct))
 		printf("la section TEXT est vide");
 	else{
 		ListeG A=*Instruct;
 		do{
+			int vrai=0;
 			/*modifie les registre en chiffre*/
 			associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
 			/*insertion des pseudo instruction*/	
 			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"nop")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || (strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"neg")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0 && ((Instruction*)(A->suiv->pval))->op[2].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"move")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"li")==0 )/*vérifier les conditions*/{
+			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
+				vrai=1;
 			pseudoInstruction( &(A->suiv));
+			if(vrai==1)
+				A=A->suiv;
 			}
-
 			A=A->suiv;
 		}while (A!=*Instruct);
 	}

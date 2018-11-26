@@ -20,7 +20,7 @@ void associerReg(ListeG Inst,registres tableau[32],int ligne);
 
 void chargeRegistre(registres tab[32]);
 
-void rel(ListeG* Instruct, ListeG Data, ListeG* RelocInst, ListeG* RelocData);
+void rel(ListeG* Instruct, ListeG Data, ListeG Etiquette, ListeG* RelocInst, ListeG* RelocData);
 
 /*-----------------------relocation--------------------*/
 
