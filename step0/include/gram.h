@@ -18,6 +18,7 @@ typedef struct DictionnaireIn{
     	char type;
     	int operands;
 	int col;
+	char* type_op[3];
 } Dico;
 
 /*Liste circulaire Générique*/

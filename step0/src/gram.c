@@ -487,11 +487,13 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 	char instruc[6];
 	char ty;
 	int ope;
+	char* o1;
 	int i = 0;
 	int j=0;
+	int k=0;
 	for (i=0;i<60;i++)
 		hashTable[i].col=-1;
-	for(i=0; i<nombreInstruc; i++){		
+	for(i=0; i<nombreInstruc; i++){	
         	fscanf(dictionnaire, "%s %c %d", instruc, &ty, &ope);
 		index = funHash(instruc,nombreInstruc);
 		if(hashTable[index].col==-1){
@@ -508,6 +510,10 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 			hashTable[index].symbole=strdup(instruc);
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
+		}
+		for(k=0;k<ope;k++){
+			fscanf(dictionnaire, "%s ",o1);
+			hashTable[index].type_op[k]=strdup(o1);
 		}
 	}
 	fclose(dictionnaire);

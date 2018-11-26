@@ -112,6 +112,9 @@ void afficherFile(File F){
 		case 15:
 			strcpy(etats,"PARENTHESE");
 			break;
+		case 16:
+			strcpy(etats,"BASE_OF");
+			break;
 	}
 	printf("Ligne %d : [ %s ] : %s \n",F->suiv->ligne, etats, F->suiv->lexeme);
 }
