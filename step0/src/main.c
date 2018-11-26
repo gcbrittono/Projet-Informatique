@@ -100,7 +100,7 @@ int main ( int argc, char *argv[] ) {
 	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2);
 
 /* ---------------- Affichage instructions -------------------*/
-	printf("\nAffichage section TEXT\n");
+/*	printf("\nAffichage section TEXT\n");
 	if(listeVide(Inst))
 		printf("la section TEXT est vide");
 	else{
@@ -110,7 +110,7 @@ int main ( int argc, char *argv[] ) {
 			A=A->suiv;
 		}while (A!=Inst);
 	}
-
+*/
 /* ---------------- Affichage données data -------------------*/
 printf("\nAffichage section DATA\n");
 	if(listeVide(Do1))
@@ -146,9 +146,28 @@ printf("\nAffichage section SYMBOLE\n");
 		}while (D!=Symb);
 	}
 
+<<<<<<< HEAD
 /*>>>>>>> be9a190610ace8a07f99d60d20d6de9a29f85e0e*/
     DEBUG_MSG("source code got %d lines",nlines);
+=======
+>>>>>>> bbe9c41c8b1e9ad56cc24e8a67a13b4a5a51970c
 
+
+/*---------------relocation---------------------------------*/
+rel(Inst);
+	printf("\nAffichage section TEXT après relocation\n");
+	if(listeVide(Inst))
+		printf("la section TEXT est vide");
+	else{
+		ListeG A=Inst;
+		do{
+			afficherInst((Instruction*)(A->suiv->pval) );
+			A=A->suiv;
+		}while (A!=Inst);
+	}
+
+/*--------------------------------------------------------------*/
+    DEBUG_MSG("source code got %d lines",nlines);
     /* ---------------- Free memory and terminate -------------------*/
 
     /* TODO free everything properly*/

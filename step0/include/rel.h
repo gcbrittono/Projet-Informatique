@@ -3,6 +3,7 @@
 
 
 #include <stdio.h>
+<<<<<<< HEAD
 #include "lex.h"
 #include "gram.h"
 
@@ -35,3 +36,25 @@ ListeG* trouver_pseudoinstruction(/*Instruction* inst*/ File listeInstr,Dico tab
 
 
 #endif
+=======
+#include <lex.h>
+#include <gram.h>
+
+typedef struct {
+char * mnemo;
+char * reg;
+} registres;
+
+
+void registre( char* reg, registres tab[32], int ligne);
+
+ListeG inserer(void* e, ListeG L);
+
+void associerReg(ListeG Inst,registres tableau[32],int ligne);
+
+void chargeRegistre(registres tab[32]);
+
+void rel(ListeG Instruct);
+
+#endif 
+>>>>>>> bbe9c41c8b1e9ad56cc24e8a67a13b4a5a51970c

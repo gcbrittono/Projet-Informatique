@@ -21,6 +21,11 @@ byebye:
 .data
 lunchtime: 
     .word 12
+.text
+	adDi $t1 , $t1 , -0XEABCF
+	addi $t1 , $t1 , 02546
+.data
+boucle:
     .word menu
     .asciiz "ils disent : \"au ru!\""
 .bss 
