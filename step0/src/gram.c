@@ -65,7 +65,7 @@ Symbole* creerSymbole(char* lex,	etat cat, int lig, Section section ,int dec){
 }
 
 ListeG ajouterQueue(void* e, ListeG L){
-	ListeG A=calloc(1,sizeof(A)/*sizeof(*e)+sizeof(A->suiv)*/);
+	ListeG A=calloc(1,sizeof(e)+sizeof(A->suiv));
 	if (A==NULL)
 		return NULL;
 	(A->pval)=e;
@@ -483,7 +483,8 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 	if(nombreInstruc == EOF) return;/*gestion erreurs*/
 	Dico hashTable[60];
 	int index;
-	char* instruc=malloc(sizeof(*instruc));
+	/*char* instruc=malloc(sizeof(*instruc));*/
+	char instruc[6];
 	char ty;
 	int ope;
 	int i = 0;

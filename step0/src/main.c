@@ -139,7 +139,9 @@ printf("\nAffichage section SYMBOLE\n");
 
 
 /*---------------relocation---------------------------------*/
-rel(Inst);
+ListeG* RelocInst=NULL;
+ListeG* RelocData=NULL;
+rel(&Inst, Do1, RelocInst, RelocData);
 	printf("\nAffichage section TEXT après relocation\n");
 	if(listeVide(Inst))
 		printf("la section TEXT est vide");
