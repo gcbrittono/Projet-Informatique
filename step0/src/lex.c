@@ -112,7 +112,7 @@ void afficherFile(File F){
 		case 15:
 			strcpy(etats,"PARENTHESE");
 			break;
-		case 16:
+		case 17:
 			strcpy(etats,"BASE_OF");
 			break;
 	}
@@ -291,7 +291,8 @@ void lex_read_line( char *line, int nline, File* F) {
 				break;
 		
 			case SYMBOLE:
-				if (isalpha(*c)) S = SYMBOLE;
+				if(*c == '(') S = BASE;
+				else if (isalpha(*c)) S = SYMBOLE;
 				else if (*c == ':'||*c == '.') S = TERM;
 				else if (isspace(*c)) S = TERM;
 				else printf ("Erreur SYMBOLE ligne %d\n",nline);
@@ -331,7 +332,8 @@ void lex_read_line( char *line, int nline, File* F) {
 
 			case SIGNE:
 				if(isdigit(*c))
-					S = (*c=='0')?DECIMAL_ZEROS : DECIMAL;	
+					if(*c=='0')S=DECIMAL_ZEROS;
+					else S=DECIMAL;	
 				else printf ("Erreur SIGNE ligne %d\n",nline);
 				break;
 		
@@ -351,29 +353,39 @@ void lex_read_line( char *line, int nline, File* F) {
 			case OCTATE:
 				if (isdigit(*c)&&(0<=(*c)<=7))S = OCTATE;
 				else if(isspace(*c) && *c == '\n') S = TERM;
+				else if(*c == '(') S = BASE;
 				else printf("Erreur OCTATE ligne %d\n",nline);
 				break;
 
 			case DECIMAL:
 				if(isdigit(*c)) S = DECIMAL;
 				else if(isspace(*c) && *c == '\n') S = TERM;
+				else if(*c == '(') S = BASE;
 				else printf("Erreur DECIMAL ligne %d\n",nline);
 				break;
 
 			case HEXA:
 				if(isxdigit(*c)) S = HEXA;
 				else if(isspace(*c) && *c == '\n') S = TERM;
+				else if(*c == '(') S = BASE;
 				else printf("Erreur HEXA ligne %d\n",nline);
 				break;
 			case TERM:
 				break;	
 
 			case CITATION:
-				break; 
+				break;
+			case BASE:
+				if( *c == ")") S = BASE_OF;
+				/*gerer erreur si pas de parenthèse a la fin*/
+				break;
   		}
 		c++;
+		
  	} 
+	if (S == BASE) printf("erreur base offset ligne %d\n",nline);
 	*F=enfiler(creerElement(token, S ,nline),*F);
+	S=INIT;
     }
 }
 
