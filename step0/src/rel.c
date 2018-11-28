@@ -219,32 +219,45 @@ void pseudoInstruction( ListeG* instr){
 }
 
 
-
+ListeG trouverSymbole(ListeG* Symb, char* nom, int ligne){
+	int vrai=0;
+	ListeG A=(*Symb)->suiv;
+	do{
+		if(strcmp(nom,((Symbole*)((A)->pval))->lexeme))
+			vrai=1;
+	}while(A!=(*Symb)->suiv && vrai==0); 
+	if (vrai==0){
+		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED ,0),*Symb);
+		A=*Symb;
+	}
+	return A;	
+}
 
 
 void rel(ListeG* Instruct, ListeG Data, ListeG Etiquette, ListeG* RelocInst, ListeG* RelocData){
 	registres tab[32];
 	chargeRegistre(tab);
 
-	if(listeVide(*Instruct))
+	if(listeVide(*Instruct)){
 		printf("la section TEXT est vide");
-	else{
-		ListeG A=*Instruct;
-		do{
-			int vrai=0;
-			/*modifie les registre en chiffre*/
-			associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
-			/*insertion des pseudo instruction*/	
-			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"nop")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || (strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"neg")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0 && ((Instruction*)(A->suiv->pval))->op[2].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"move")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"li")==0 )/*vérifier les conditions*/{
-			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
-				vrai=1;
-			pseudoInstruction( &(A->suiv));
-			if(vrai==1)
-				A=A->suiv;
-			}
-			A=A->suiv;
-		}while (A!=*Instruct);
+		return;
 	}
+	ListeG A=*Instruct;
+	do{
+		int vrai=0;/* passe à 1 si l'opérande est une pseudo instruction qui sera remplacpar deux instruction*/
+		/*modifie les registre en chiffre*/
+		associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
+		/*insertion des pseudo instruction*/	
+		if(strcmp(((Instruction*)(A->suiv->pval))->nom,"nop")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || (strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"neg")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0 && ((Instruction*)(A->suiv->pval))->op[2].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"move")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"li")==0 )/*vérifier les conditions*/{
+		if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
+			vrai=1;
+		pseudoInstruction( &(A->suiv));
+		if(vrai==1)
+			A=A->suiv;
+		
+		}
+		A=A->suiv;
+	}while (A!=*Instruct);
 }
 
 

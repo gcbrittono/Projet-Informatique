@@ -233,11 +233,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			if(strcmp(G->lexeme, ".byte")==0){
 				G=G->suiv;
 				while (G->ligne==((Donnee1*)((*Do1)->pval))->ligne){/*prendre en compte la position des virgules entre les operandes a corriger*/
-					if(G->categorie==VIRGULE)
+					if(G->categorie==VIRGULE && G->suiv->ligne==((Donnee1*)((*Do1)->pval))->ligne && G->suiv->categorie!=VIRGULE)
 						G=G->suiv;
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
-					else if((G->categorie==OCTATE) || (G->categorie==DECIMAL)){
+					else if((G->categorie==OCTATE) || (G->categorie==DECIMAL)){/*modifier pour les octate ne marche pas*/
 							if((atoi(G->lexeme)>-129) && (atoi(G->lexeme)<128)){
 								((Donnee1*)((*Do1)->pval))->nbop+=1;
 								Opedonnee* oper=malloc(sizeof(*oper));
@@ -260,7 +260,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						}
 					}	
 					else
-						printf("erreur l'opérande n'est pas du bon type pour la directive byte ligne %d \n",G->ligne);
+						printf("erreur l'opérande n'est pas du bon type pour la directive byte ou mauvaise place de la virgule ligne %d \n",G->ligne);
 					G=G->suiv;
 				}
 			}
@@ -420,10 +420,10 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			Sect=TEXT;
 			toLowerStr(G->lexeme);/*passe toutes les instructions en miniscule*/
 			int position;
+			File H=G;
 			/*printf("postion %d \n",funHash(G->lexeme, taille));*/
 			if((tableau[funHash(G->lexeme, taille)].col==-1) || ((tableau[funHash(G->lexeme, taille)].col==-2) && (strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0)) || ((tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0))){
 				printf("erreur, l'instruction n'existe pas ligne %d \n", G->ligne);
-				File H=G;
 				while (G->ligne==H->ligne)
 					G=G->suiv;
 				S=INIT;
@@ -439,21 +439,26 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					dec_text+=4;
 				G=G->suiv;
 				while (G->ligne==((Instruction*)((*Inst)->pval))->ligne){
-					if(G->categorie==VIRGULE){
+					if(G->categorie==VIRGULE && G->suiv->ligne==((Instruction*)((*Inst)->pval))->ligne && G->suiv->categorie!=VIRGULE)
 						G=G->suiv;
-					}
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else if(i>=tableau[position].operands){
 						printf("erreur il y a trop d'opérande à l'instruction ligne %d \n", G->ligne);/*on garde que les premiers operandes*/
 						G=G->suiv;
 					}
-					else{
+					else if(((i<(((Instruction*)((*Inst)->pval))->nbop)-1) && (G->suiv->categorie==VIRGULE)) || i==(((Instruction*)((*Inst)->pval))->nbop)-1 && (G->categorie!=VIRGULE)){
 						((Instruction*)((*Inst)->pval))->op[i].categorie=G->categorie;
 						((Instruction*)((*Inst)->pval))->op[i].lexeme=strdup(G->lexeme);
 						i+=1;
 						G=G->suiv;
-					}/*probleme alternance operande virgule*/
+					}
+					else {
+						printf("probleme d'alternance avec les virgules ligne %d \n", G->ligne);
+						while (G->ligne==H->ligne)
+							G=G->suiv;
+					}
+					/*probleme alternance operande virgule*/
 				}
 				if(i<((Instruction*)((*Inst)->pval))->nbop)
 					printf("erreur il n'y a pas assez d'opérande à l'instruction ligne %d \n", ((Instruction*)((*Inst)->pval))->ligne);

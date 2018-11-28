@@ -376,8 +376,8 @@ void lex_read_line( char *line, int nline, File* F) {
 			case CITATION:
 				break;
 			case BASE:
-				if( *c == ")") S = BASE_OF;
-				/*gerer erreur si pas de parenthèse a la fin*/
+				if( *c == ')') S = BASE_OF;
+				else if (*(c++)=='\0') printf(" ok erreur base offset ligne %d\n",nline);/*erreur si pas de parenthèse a la fin*/
 				break;
   		}
 		c++;
