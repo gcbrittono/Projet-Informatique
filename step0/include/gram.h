@@ -30,6 +30,7 @@ typedef struct el{
 typedef struct {
 	char* lexeme;
 	etat categorie;
+	char* typeadr;
 } Operande;
 
 typedef struct {
@@ -113,9 +114,9 @@ int funHash(char* str, int taille);
 
 void toLowerStr(char *str);
 
-void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille);
+void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille, int* erreur);
 
-void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2);
+void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur);
 
 /*File defiler*/
 

@@ -28,7 +28,7 @@ lunchtime:
 	move $t3 ,$t2
 
 .data
-boucle:
+boucles:
     .word menu
     .asciiz "ils disent : \"au ru!\""
 .bss 

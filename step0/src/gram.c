@@ -7,6 +7,8 @@
 #include <lex.h>
 #include <unistd.h>
 #include <math.h>
+#include <global.h>
+#include <notify.h>
 
 
 /*fonction qui crée une liste*/
@@ -163,7 +165,7 @@ void toLowerStr(char *str){
 
 
 
-void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille){
+void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille, int* erreur){
     /*definition des etats et des décalages dans chaque section*/
 	Section Sect;
 	int dec_text=0;
@@ -189,8 +191,9 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			else if(G->categorie== COMMENTAIRE)
 				G=G->suiv;
 			else{
-				printf("erreur ligne %d \n", G->ligne);
+				printf("erreur la ligne ne peut pas débuter par ce caractèreligne %d \n", G->ligne);
 				G=G->suiv;
+				*erreur =1;
 			}
             		break;
 
@@ -221,6 +224,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			else{
 				printf("erreur symbole de directive arreter l'assemblage ligne %d \n", G->ligne);
 				File K=G;
+				*erreur =1;
 				while (G->ligne==K->ligne)
 					G=G->suiv;
 			}
@@ -245,12 +249,16 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 								((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 								dec_data+=1;
 							}
-							else
+							else{
 								printf("erreur ne tient pas sur un octet ligne %d \n",G->ligne);
+								*erreur =1;
+							}
 					}
 					else if((G->categorie==HEXA)){
-						if(strlen(G->lexeme)>4)
+						if(strlen(G->lexeme)>4){
 							printf("erreur ne tient pas sur un octet ligne %d \n",G->ligne);
+							*erreur =1;
+						}
 						else{
 							((Donnee1*)((*Do1)->pval))->nbop+=1;
 							Opedonnee* oper=malloc(sizeof(*oper));
@@ -259,8 +267,10 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 							dec_data+=1;
 						}
 					}	
-					else
+					else{
 						printf("erreur l'opérande n'est pas du bon type pour la directive byte ou mauvaise place de la virgule ligne %d \n",G->ligne);
+						*erreur =1;
+					}
 					G=G->suiv;
 				}
 			}
@@ -282,6 +292,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else{
 						printf("erreur l'opérande n'est pas une citation ligne %d \n",G->ligne);
 						G=G->suiv;
+						*erreur =1;
 					}
 				}
 			}
@@ -307,14 +318,23 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if((G->categorie==HEXA)){
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
 						Opedonnee* oper=malloc(sizeof(*oper));
-						strcpy(oper->as_et,G->lexeme);
+						oper->as_et=strdup(G->lexeme);
 						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 						dec_data+=4;
 						G=G->suiv;
-					}	
+					}
+					else if((G->categorie==SYMBOLE)){
+						((Donnee1*)((*Do1)->pval))->nbop+=1;
+						Opedonnee* oper=malloc(sizeof(*oper));
+						oper->as_et=strdup(G->lexeme);
+						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
+						dec_data+=4;
+						G=G->suiv;
+					}
 					else{
 							printf("erreur l'opérande n'est pas du bon type pour la directive .word ligne %d \n",G->ligne);
 							G=G->suiv;
+							*erreur =1;
 					}
 				}
 			}
@@ -326,8 +346,10 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else{
-						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL))
+						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL)){
 							printf("erreur l'opérande n'est pas un chiffre pour la directive space ligne %d \n",G->ligne);
+							*erreur =1;
+						}
 						else{
 							((Donnee1*)((*Do1)->pval))->nbop+=1;/*a verifier si plusieurs operandes possible*/
 							Opedonnee* oper=malloc(sizeof(*oper));
@@ -352,8 +374,10 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else{
-						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL))
+						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL)){
+							*erreur =1;
 							printf("erreur l'opérande n'est pas un chiffre pour la directive space ligne %d \n",G->ligne);
+						}
 						else{
 							((Donnee2*)((*Do2)->pval))->nbop+=1;
 							((Donnee2*)((*Do2)->pval))->valeur+=atoi(G->lexeme);
@@ -373,6 +397,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			else{
 				printf("erreur instruction n'est pas dans la section TEXT arreter l'assemblage ligne %d \n", G->ligne);
 				File O=G;
+				*erreur =1;
 				while (G->ligne==O->ligne)
 					G=G->suiv;
 			}
@@ -387,6 +412,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					if( strcmp(G->lexeme,((Symbole*)(test->pval))->lexeme)==0){
 						printf("erreur l'étiquette existe deja ligne %d \n",G->ligne);
 						k+=1;
+						*erreur =1;
 						}
 				}while(test!=(*Symb)->suiv);
 			}
@@ -424,6 +450,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			/*printf("postion %d \n",funHash(G->lexeme, taille));*/
 			if((tableau[funHash(G->lexeme, taille)].col==-1) || ((tableau[funHash(G->lexeme, taille)].col==-2) && (strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0)) || ((tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0))){
 				printf("erreur, l'instruction n'existe pas ligne %d \n", G->ligne);
+				*erreur =1;
 				while (G->ligne==H->ligne)
 					G=G->suiv;
 				S=INIT;
@@ -446,22 +473,27 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if(i>=tableau[position].operands){
 						printf("erreur il y a trop d'opérande à l'instruction ligne %d \n", G->ligne);/*on garde que les premiers operandes*/
 						G=G->suiv;
+						*erreur =1;
 					}
 					else if(((i<(((Instruction*)((*Inst)->pval))->nbop)-1) && (G->suiv->categorie==VIRGULE)) || i==(((Instruction*)((*Inst)->pval))->nbop)-1 && (G->categorie!=VIRGULE)){
 						((Instruction*)((*Inst)->pval))->op[i].categorie=G->categorie;
 						((Instruction*)((*Inst)->pval))->op[i].lexeme=strdup(G->lexeme);
+						((Instruction*)((*Inst)->pval))->op[i].typeadr=strdup(tableau[position].type_op[i]);
 						i+=1;
 						G=G->suiv;
 					}
 					else {
 						printf("probleme d'alternance avec les virgules ligne %d \n", G->ligne);
+						*erreur =1;
 						while (G->ligne==H->ligne)
 							G=G->suiv;
 					}
 					/*probleme alternance operande virgule*/
 				}
-				if(i<((Instruction*)((*Inst)->pval))->nbop)
+				if(i<((Instruction*)((*Inst)->pval))->nbop){
 					printf("erreur il n'y a pas assez d'opérande à l'instruction ligne %d \n", ((Instruction*)((*Inst)->pval))->ligne);
+					*erreur =1;
+				}
 				else
 					dec_text+=4;
 			}
@@ -474,18 +506,17 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 }
 
 
-void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){ 
+void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur){ 
 	
 	FILE* dictionnaire;
 
 	dictionnaire = fopen("src/dictionnaire_instruction.txt","r");
 	if (dictionnaire == NULL){
-		printf("le dictionnaire n'a pas été ouvert \n"); 
-		return; /*gestion erreurs*/
+		ERROR_MSG("le dictionnaire n'a pas été ouvert");
 	}
 	int nombreInstruc;
 	fscanf(dictionnaire, "%d",&nombreInstruc);    
-	if(nombreInstruc == EOF) return;/*gestion erreurs*/
+	if(nombreInstruc == EOF) ERROR_MSG("le dictionnaire est vide");
 	Dico hashTable[60];
 	int index;
 	/*char* instruc=malloc(sizeof(*instruc));*/
@@ -516,6 +547,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
 		}
+/*chargement du type d'adressage des registres*/
 		for(k=0;k<ope;k++){
 			fscanf(dictionnaire, "%s ",o1);
 			hashTable[index].type_op[k]=strdup(o1);
@@ -523,6 +555,6 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 	}
 	fclose(dictionnaire);
 	
-	machine_a_etat_gram (F, Inst, Symb, Do1, Do2, hashTable, nombreInstruc);
+	machine_a_etat_gram (F, Inst, Symb, Do1, Do2, hashTable, nombreInstruc, erreur);
 
 }

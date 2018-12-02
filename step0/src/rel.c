@@ -5,6 +5,8 @@
 #include <gram.h>
 #include <lex.h>
 #include <rel.h>
+#include <global.h>
+#include <notify.h>
 
 void registre( char* reg, registres tab[32], int ligne){
 	int i=0;;
@@ -39,6 +41,17 @@ ListeG inserer(void* e, ListeG L){
 	return L;
 }
 
+void libererInstruction(ListeG* L){
+	while((*L)->suiv!=*L){
+		ListeG A=(*L)->suiv;
+		free(((Instruction*)(A->pval))->nom);
+		(*L)->suiv=(*L)->suiv->suiv;
+		free(A);
+	}
+	free(((Instruction*)((*L)->pval))->nom);
+	free(*L);
+}
+
 void associerReg(ListeG Inst,registres tableau[32],int ligne){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
@@ -53,7 +66,7 @@ FILE* re;
 
 	re = fopen("src/registre.txt","r");
 	if (re == NULL){
-		printf("le dictionnaire de registre n'a pas été ouvert \n"); 
+		ERROR_MSG("le dictionnaire de registre n'a pas été ouvert "); 
 		return; /*gestion erreurs*/
 	}
 	char* reg1[10]/*=malloc(sizeof(*reg1))*/;
@@ -219,7 +232,7 @@ void pseudoInstruction( ListeG* instr){
 }
 
 
-ListeG trouverSymbole(ListeG* Symb, char* nom, int ligne){
+/*ListeG trouverSymbole(ListeG* Symb, char* nom, int ligne){
 	int vrai=0;
 	ListeG A=(*Symb)->suiv;
 	do{
@@ -231,10 +244,43 @@ ListeG trouverSymbole(ListeG* Symb, char* nom, int ligne){
 		A=*Symb;
 	}
 	return A;	
+}*/
+
+void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
+	int nb=((Instruction*)(Inst->pval))->nbop;
+	int i = 0;
+	printf("ok");
+	for(i; i<nb;i++){
+		if((((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE) && (strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0))
+			/*Symbole* Symbole = trouverSymbole(char* nom, ligne, Symb);*/
+			*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(((Instruction*)(Inst->pval))->op[i].lexeme, ligne, Symb), 1), *RelocInst);
+	}
 }
 
+Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
+	if(listeVide(*Symb)){
+		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED, 0), *Symb);
+		return (Symbole*)((*Symb)->suiv->pval);
+	}
+	else{
+		ListeG D=*Symb;
+		do{
+			if(strcmp(nom,((Symbole*)((D)->suiv->pval))->lexeme)==0)
+				return (Symbole*)((D)->suiv->pval);
+			D=D->suiv;
+		}while (D!=*Symb);
+	}
+	if(((Symbole*)((*Symb)->pval))->sect==UNDEFINED){
+		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED, (((Symbole*)((*Symb)->pval))->decalage)+4), *Symb);
+		return (Symbole*)((*Symb)->pval);
+	}
+	else{
+		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED, 0), *Symb);
+		return (Symbole*)((*Symb)->pval);
+	}
+}
 
-void rel(ListeG* Instruct, ListeG Data, ListeG Etiquette, ListeG* RelocInst, ListeG* RelocData){
+void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, ListeG* RelocData){
 	registres tab[32];
 	chargeRegistre(tab);
 
@@ -249,13 +295,17 @@ void rel(ListeG* Instruct, ListeG Data, ListeG Etiquette, ListeG* RelocInst, Lis
 		associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
 		/*insertion des pseudo instruction*/	
 		if(strcmp(((Instruction*)(A->suiv->pval))->nom,"nop")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || (strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"neg")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0 && ((Instruction*)(A->suiv->pval))->op[2].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"move")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"li")==0 )/*vérifier les conditions*/{
-		if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
+			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
 			vrai=1;
 		pseudoInstruction( &(A->suiv));
-		if(vrai==1)
-			A=A->suiv;
-		
+		printf("bon1");
 		}
+		relocationInst(A->suiv,Etiquette,((Instruction*)(A->suiv->pval))->ligne, RelocInst);
+			if(vrai==1){
+				printf("bon2");
+				A=A->suiv;
+				relocationInst(A->suiv,Etiquette,((Instruction*)(A->suiv->pval))->ligne, RelocInst);	
+			}
 		A=A->suiv;
 	}while (A!=*Instruct);
 }

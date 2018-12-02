@@ -72,35 +72,28 @@ int main ( int argc, char *argv[] ) {
 
 
     /* ---------------- do the lexical analysis -------------------*/
+	int erreur=0;
 	File F=creerFile();
-    lex_load_file( file, &nlines,&F );
+    lex_load_file( file, &nlines,&F, &erreur);
 
 	File P=F;
 	do{
 		afficherFile(P);
 		P=P->suiv;
 	}while (P!=F);
-	
+	if (erreur == 1)
+		ERROR_MSG("Erreur dans l'annalyse lexicale");
 	/* ---------------- do the gramatical analysis -------------------*/
 	ListeG Inst=NULL;
 	ListeG Symb=NULL;
 	ListeG Do1=NULL;
 	ListeG Do2=NULL;
 
-	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2);
+	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2,&erreur);
 
-/* ---------------- Affichage instructions -------------------*/
-/*	printf("\nAffichage section TEXT\n");
-	if(listeVide(Inst))
-		printf("la section TEXT est vide");
-	else{
-		ListeG A=Inst;
-		do{
-			afficherInst((Instruction*)(A->suiv->pval) );
-			A=A->suiv;
-		}while (A!=Inst);
-	}
-*/
+	if (erreur == 1)
+		ERROR_MSG("Erreur dans l'annalyse grammaticale");
+
 /* ---------------- Affichage données data -------------------*/
 printf("\nAffichage section DATA\n");
 	if(listeVide(Do1))
@@ -126,7 +119,7 @@ printf("\nAffichage section BSS\n");
 
 /* ---------------- Affichage etiquettes-------------------*/
 printf("\nAffichage section SYMBOLE\n");
-	if(listeVide(Inst))
+	if(listeVide(Symb))
 		printf("la section SYMBOLE est vide");
 	else{
 		ListeG D=Symb;
@@ -139,9 +132,9 @@ printf("\nAffichage section SYMBOLE\n");
 
 
 /*---------------relocation---------------------------------*/
-ListeG* RelocInst=NULL;
-ListeG* RelocData=NULL;
-rel(&Inst, Do1, RelocInst, RelocData);
+ListeG RelocInst=NULL;
+ListeG RelocData=NULL;
+rel(&Inst, Do1, &RelocInst, &RelocData);
 	printf("\nAffichage section TEXT après relocation\n");
 	if(listeVide(Inst))
 		printf("la section TEXT est vide");
@@ -156,7 +149,12 @@ rel(&Inst, Do1, RelocInst, RelocData);
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);
     /* ---------------- Free memory and terminate -------------------*/
-
+	/*libererInstruction(&Inst);*/
+/*
+	liberer(&Symb);
+	liberer(&Do2);
+	liberer(&Do1);
+*/
     /* TODO free everything properly*/
 
     exit( EXIT_SUCCESS );
