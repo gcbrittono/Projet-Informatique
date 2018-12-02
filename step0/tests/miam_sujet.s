@@ -29,7 +29,7 @@ lunchtime:
 
 .data
 boucles:
-    .word menu
+    .word menu, 12
     .asciiz "ils disent : \"au ru!\""
 .bss 
 menu:

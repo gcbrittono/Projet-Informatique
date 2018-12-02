@@ -83,17 +83,19 @@ FILE* re;
 
 /*Fonction pour créer la table de relocation à partir de l'étiquette*/
 table_relocation*  symbole_find(ListeG L, Symbole* symb, int i /*entier qui indique si data ou text*/){
-	table_relocation* tab_rel;
+	table_relocation* tab_rel= malloc(sizeof(*tab_rel));
 	if(i==0){
 	/*if(symb->sect==DATA){*/
-     		tab_rel->nom_section =strdup("DATA");
+     		/*tab_rel->nom_section =strdup("DATA");*/
+		tab_rel->sect=DATA;
             	tab_rel->addr_relative = ((Donnee1*)(L->pval))->decalage;/*symb->decalage*/
             	tab_rel->mode_relocation = 2;
 		tab_rel->pointeur = symb;		
-		}
+	}
 	else if (i==1){
         /*else if(symb->sect==TEXT){*/
-            	tab_rel->nom_section =strdup("TEXT");
+            	/*tab_rel->nom_section =strdup("TEXT");*/
+		tab_rel->sect=TEXT;
             	tab_rel->addr_relative = ((Instruction*)(L->pval))->decalage;/*symb->decalage*/
 		switch(((Instruction*)(L->pval))->type_inst){
 			case 'R'  :
@@ -140,21 +142,25 @@ void pseudoInstruction( ListeG* instr){
 	char* o[3];
 	etat typop[3];
 	if (strcmp(((Instruction*)((*instr)->pval))->nom,"lw")==0){
-		o[0]=strdup(((Instruction*)((*instr)->pval))->op[0]);
-		o[1]=strdup(((Instruction*)((*instr)->pval))->op[1]);
+		o[0]=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
+		o[1]=strdup(((Instruction*)((*instr)->pval))->op[1].lexeme);
 		typop[0]=((Instruction*)((*instr)->pval))->op[0].categorie;
 		typop[1]=((Instruction*)((*instr)->pval))->op[1].categorie;
 		*instr=inserer(creerInstruction("lw", ((Instruction*)((*instr)->pval))->type, 2, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=((Instruction*)((*instr)->pval))->op[0].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
-		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=((Instruction*)((*instr)->pval))->op[1].categorie;/*remplacer par base offset une fois créé*/
+		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=((Instruction*)((*instr)->pval))->op[1].categorie;
 		char mot[256];
 		strcpy(mot,((Instruction*)((*instr)->pval))->op[1].lexeme);
 		strcat(mot,"(");
 		strcat(mot,((Instruction*)((*instr)->pval))->op[0].lexeme);
 		strcat(mot,")");
 		((Instruction*)((*instr)->suiv->pval))->op[1].lexeme=strdup(mot);
+		((Instruction*)((*instr)->suiv->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->suiv->pval))->op[1].typeadr=strdup("Bas");
 		remplacer_instr(*instr, "lui", 2, 'I',o,typop);
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Imm");
 /*faire la relocation ici pour les deux instructions*/
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"sw")==0){
@@ -165,12 +171,16 @@ void pseudoInstruction( ListeG* instr){
 		*instr=inserer(creerInstruction("sw", ((Instruction*)((*instr)->pval))->type, 2, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=((Instruction*)((*instr)->pval))->op[0].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
-		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=((Instruction*)((*instr)->pval))->op[1].categorie;/*remplacer par base offset une fois créé*/
+		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=((Instruction*)((*instr)->pval))->op[1].categorie;
 		char mot[256];
 		strcpy(mot,((Instruction*)((*instr)->pval))->op[1].lexeme);
 		strcat(mot,"($1)");
 		((Instruction*)((*instr)->suiv->pval))->op[1].lexeme=strdup(mot);
+		((Instruction*)((*instr)->suiv->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->suiv->pval))->op[1].typeadr=strdup("Bas");
 		remplacer_instr(*instr, "lui", 2, 'I',o, typop);
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Imm");
 		
 /*faire la relocation ici pour les deux instructions*/
 	}
@@ -181,7 +191,10 @@ void pseudoInstruction( ListeG* instr){
 		typop[0]=REGISTRE;
 		typop[1]=REGISTRE;
 		typop[2]=DECIMAL;
-		remplacer_instr(*instr, "sll", 3, 'I'/*"sa"*/,o, typop);
+		remplacer_instr(*instr, "sll", 3, 'I',o, typop);
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[2].typeadr=strdup("sa");
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"move")==0){
 		o[0]=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
@@ -191,6 +204,9 @@ void pseudoInstruction( ListeG* instr){
 		typop[1]=((Instruction*)((*instr)->pval))->op[1].categorie;
 		typop[2]=REGISTRE;
 		remplacer_instr(*instr, "add", 3, 'R',o, typop);
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[2].typeadr=strdup("Reg");
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"li")==0){
 		o[0]=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
@@ -200,6 +216,9 @@ void pseudoInstruction( ListeG* instr){
 		typop[1]=REGISTRE;
 		typop[2]=((Instruction*)((*instr)->pval))->op[1].categorie;
 		remplacer_instr(*instr, "addi", 3, 'I',o, typop);
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[2].typeadr=strdup("Imm");
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"blt")==0){
 		o[0]=strdup("$1");
@@ -215,7 +234,13 @@ void pseudoInstruction( ListeG* instr){
 		((Instruction*)((*instr)->suiv->pval))->op[1].lexeme=strdup("$0");
 		((Instruction*)((*instr)->suiv->pval))->op[2].categorie=((Instruction*)((*instr)->pval))->op[2].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[2].lexeme=strdup(((Instruction*)((*instr)->pval))->op[2].lexeme);
+		((Instruction*)((*instr)->suiv->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->suiv->pval))->op[1].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->suiv->pval))->op[2].typeadr=strdup("Rel");
 		remplacer_instr(*instr, "slt", 3, 'R',o, typop);
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[2].typeadr=strdup("Reg");
 		
 		
 /*faire la relocation ici*/
@@ -228,6 +253,9 @@ void pseudoInstruction( ListeG* instr){
 		typop[1]=REGISTRE;
 		typop[2]=((Instruction*)((*instr)->pval))->op[1].categorie;
 		remplacer_instr(*instr, "sub", 3, 'R',o, typop);
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Reg");
+		((Instruction*)((*instr)->pval))->op[2].typeadr=strdup("Reg");
 	}
 }
 
@@ -249,14 +277,24 @@ void pseudoInstruction( ListeG* instr){
 void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
-	printf("ok");
 	for(i; i<nb;i++){
 		if((((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE) && (strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0))
 			/*Symbole* Symbole = trouverSymbole(char* nom, ligne, Symb);*/
+			printf("relocation ligne %d ",ligne);
 			*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(((Instruction*)(Inst->pval))->op[i].lexeme, ligne, Symb), 1), *RelocInst);
 	}
 }
-
+/*
+void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData){
+	int nb=((Donnee1*)(Data->pval))->nbop;
+	int i = 0;
+	for(i; i<nb;i++){
+		if((((Donnee1)(Data->pval))->op[i].categorie==SYMBOLE))
+			printf("relocation ligne %d ",ligne);
+			*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(((Instruction*)(Inst->pval))->op[i].lexeme, ligne, Symb), 1), *RelocInst);
+	}
+}
+*/
 Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 	if(listeVide(*Symb)){
 		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED, 0), *Symb);
@@ -290,7 +328,7 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 	}
 	ListeG A=*Instruct;
 	do{
-		int vrai=0;/* passe à 1 si l'opérande est une pseudo instruction qui sera remplacpar deux instruction*/
+		int vrai=0;/* passe à 1 si l'opérande est une pseudo instruction qui sera remplacé par deux instruction*/
 		/*modifie les registre en chiffre*/
 		associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
 		/*insertion des pseudo instruction*/	
@@ -298,16 +336,22 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
 			vrai=1;
 		pseudoInstruction( &(A->suiv));
-		printf("bon1");
 		}
 		relocationInst(A->suiv,Etiquette,((Instruction*)(A->suiv->pval))->ligne, RelocInst);
 			if(vrai==1){
-				printf("bon2");
 				A=A->suiv;
-				relocationInst(A->suiv,Etiquette,((Instruction*)(A->suiv->pval))->ligne, RelocInst);	
+				relocationInst(A->suiv,Etiquette,((Instruction*)(A->suiv->pval))->ligne, RelocInst);
 			}
 		A=A->suiv;
 	}while (A!=*Instruct);
+
+	/*if(listeVide(Data)){
+		printf("la section DATA est vide");
+		return;
+	}
+	ListeG B=Data;
+	do{
+	}while (B!=Data);*/
 }
 
 

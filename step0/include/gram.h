@@ -51,7 +51,10 @@ typedef union {
 	unsigned char octet;
 } Opedonnee;
 	
-	
+typedef struct {
+	Opedonnee lexeme;
+	etat type;
+} OpeD;
 
 typedef struct {
 	char* lexeme;

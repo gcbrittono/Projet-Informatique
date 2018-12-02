@@ -307,7 +307,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						G=G->suiv;
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
-					else if((G->categorie==OCTATE) || (G->categorie==DECIMAL)){
+					else if((G->categorie==OCTATE) || (G->categorie==DECIMAL)){/*ne marche pas pour les octate*/
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
 						Opedonnee* oper=malloc(sizeof(*oper));
 						oper->word=atoi(G->lexeme);
@@ -523,7 +523,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 	char instruc[6];
 	char ty;
 	int ope;
-	char* o1;
+	char o1[3];
 	int i = 0;
 	int j=0;
 	int k=0;
