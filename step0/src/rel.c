@@ -278,23 +278,33 @@ void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
 	for(i; i<nb;i++){
-		if((((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE) && (strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0))
+		if((((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE) && (strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0)){
 			/*Symbole* Symbole = trouverSymbole(char* nom, ligne, Symb);*/
-			printf("relocation ligne %d ",ligne);
+			printf("relocation text ligne %d ",ligne);
 			*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(((Instruction*)(Inst->pval))->op[i].lexeme, ligne, Symb), 1), *RelocInst);
+		}
 	}
 }
-/*
+
 void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData){
 	int nb=((Donnee1*)(Data->pval))->nbop;
 	int i = 0;
+	ListeG P=((Donnee1*)(Data->pval))->op->suiv;
+		if(listeVide(*RelocData)){
+		printf("la section RelocData est vide");
+		return;
+	}
 	for(i; i<nb;i++){
-		if((((Donnee1)(Data->pval))->op[i].categorie==SYMBOLE))
-			printf("relocation ligne %d ",ligne);
-			*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(((Instruction*)(Inst->pval))->op[i].lexeme, ligne, Symb), 1), *RelocInst);
+		if(((OpeD*)(P->pval))->type==SYMBOLE){
+			printf("relocation data ligne %d ",ligne);
+			
+			*RelocData=ajouterQueue(symbole_find(Data, trouverSymbole(((OpeD*)(P->pval))->valeur.as_et, ligne, Symb), 0), *RelocData);
+			printf("parfait");
+		}
+		P=P->suiv;	
 	}
 }
-*/
+
 Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 	if(listeVide(*Symb)){
 		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED, 0), *Symb);
@@ -345,13 +355,15 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 		A=A->suiv;
 	}while (A!=*Instruct);
 
-	/*if(listeVide(Data)){
+	if(listeVide(Data)){
 		printf("la section DATA est vide");
 		return;
 	}
 	ListeG B=Data;
 	do{
-	}while (B!=Data);*/
+		relocationData(B->suiv,Etiquette,((Donnee1*)(B->suiv->pval))->ligne, RelocData);
+		B=B->suiv;
+	}while (B!=Data);
 }
 
 

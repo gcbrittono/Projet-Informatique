@@ -24,6 +24,8 @@ void chargeRegistre(registres tab[32]);
 
 void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst);
 
+void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData);
+
 Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb);
 
 void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, ListeG* RelocData);

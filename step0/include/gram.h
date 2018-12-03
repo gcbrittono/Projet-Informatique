@@ -52,7 +52,7 @@ typedef union {
 } Opedonnee;
 	
 typedef struct {
-	Opedonnee lexeme;
+	Opedonnee valeur;
 	etat type;
 } OpeD;
 

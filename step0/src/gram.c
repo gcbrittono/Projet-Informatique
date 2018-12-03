@@ -93,10 +93,10 @@ void afficherInst(Instruction* L){
 void afficherDo1(Donnee1* L){
 	printf("Décalage %d : [ SYMBOLE ] : %s : nombre operande : %d : opérandes : ",L->decalage, L->lexeme, L->nbop);
 	ListeG o=L->op;
-	Opedonnee* d;
+	Opedonnee d;
 	int i=0;
 	for(i;i<=L->nbop-1;i++){
-		d=(Opedonnee*)(o->pval);
+		d=((OpeD*)(o->pval))->valeur;
 		printf(" %u / ",d);
 		o=o->suiv;
 	}
@@ -244,8 +244,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if((G->categorie==OCTATE) || (G->categorie==DECIMAL)){/*modifier pour les octate ne marche pas*/
 							if((atoi(G->lexeme)>-129) && (atoi(G->lexeme)<128)){
 								((Donnee1*)((*Do1)->pval))->nbop+=1;
-								Opedonnee* oper=malloc(sizeof(*oper));
-								oper->word=atoi(G->lexeme);
+								/*Opedonnee* oper=malloc(sizeof(*oper));
+								oper->word=atoi(G->lexeme);*/
+								OpeD* oper=malloc(sizeof(*oper));
+								oper->valeur.word=atoi(G->lexeme);
+								oper->type=G->categorie;
 								((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 								dec_data+=1;
 							}
@@ -261,8 +264,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						}
 						else{
 							((Donnee1*)((*Do1)->pval))->nbop+=1;
-							Opedonnee* oper=malloc(sizeof(*oper));
-							strcpy(oper->as_et,G->lexeme);
+							/*Opedonnee* oper=malloc(sizeof(*oper));
+							strcpy(oper->as_et,G->lexeme);*/
+							OpeD* oper=malloc(sizeof(*oper));
+							oper->valeur.as_et=strdup(G->lexeme);
+							oper->type=G->categorie;
 							((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 							dec_data+=1;
 						}
@@ -283,8 +289,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						G=G->suiv;
 					else if(G->categorie==CITATION){
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
-						Opedonnee* oper=malloc(sizeof(*oper));
-						oper->as_et=G->lexeme;
+						/*Opedonnee* oper=malloc(sizeof(*oper));
+						oper->as_et=G->lexeme;*/
+						OpeD* oper=malloc(sizeof(*oper));
+						oper->valeur.as_et=strdup(G->lexeme);
+						oper->type=G->categorie;
 						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 						dec_data+=strlen(G->lexeme)+1;
 						G=G->suiv;
@@ -309,24 +318,33 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						G=G->suiv;
 					else if((G->categorie==OCTATE) || (G->categorie==DECIMAL)){/*ne marche pas pour les octate*/
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
-						Opedonnee* oper=malloc(sizeof(*oper));
-						oper->word=atoi(G->lexeme);
+						/*Opedonnee* oper=malloc(sizeof(*oper));
+						oper->word=atoi(G->lexeme);*/
+						OpeD* oper=malloc(sizeof(*oper));
+						oper->valeur.word=atoi(G->lexeme);
+						oper->type=G->categorie;
 						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 						dec_data+=4;
 						G=G->suiv;
 					}
 					else if((G->categorie==HEXA)){
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
-						Opedonnee* oper=malloc(sizeof(*oper));
-						oper->as_et=strdup(G->lexeme);
+						/*Opedonnee* oper=malloc(sizeof(*oper));
+						oper->as_et=strdup(G->lexeme);*/
+						OpeD* oper=malloc(sizeof(*oper));
+						oper->valeur.as_et=strdup(G->lexeme);
+						oper->type=G->categorie;
 						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 						dec_data+=4;
 						G=G->suiv;
 					}
 					else if((G->categorie==SYMBOLE)){
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
-						Opedonnee* oper=malloc(sizeof(*oper));
-						oper->as_et=strdup(G->lexeme);
+						/*Opedonnee* oper=malloc(sizeof(*oper));
+						oper->as_et=strdup(G->lexeme);*/
+						OpeD* oper=malloc(sizeof(*oper));
+						oper->valeur.as_et=strdup(G->lexeme);
+						oper->type=G->categorie;
 						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 						dec_data+=4;
 						G=G->suiv;
@@ -352,8 +370,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						}
 						else{
 							((Donnee1*)((*Do1)->pval))->nbop+=1;/*a verifier si plusieurs operandes possible*/
-							Opedonnee* oper=malloc(sizeof(*oper));
-							oper->word=atoi(G->lexeme);
+							/*Opedonnee* oper=malloc(sizeof(*oper));
+							oper->word=atoi(G->lexeme);*/
+							OpeD* oper=malloc(sizeof(*oper));
+							oper->valeur.as_et=atoi(G->lexeme);
+							oper->type=G->categorie;
 							((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 							dec_data+=atoi(G->lexeme);
 						}

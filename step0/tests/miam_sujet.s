@@ -25,6 +25,7 @@ lunchtime:
 	adDi $t1 , $t1 , -0XEABCF
 	addi $t1 , $t1 , 02546
 	sw $t0 , lunchtime
+	sw $t0 , bonjour
 	move $t3 ,$t2
 
 .data
