@@ -117,6 +117,8 @@ void afficherFile(File F){
 		case 17:
 			strcpy(etats,"BASE_OF");
 			break;
+		default :
+			WARNING_MSG("mauvais type d'opérande");
 	}
 	printf("Ligne %d : [ %s ] : %s \n",F->suiv->ligne, etats, F->suiv->lexeme);
 }
@@ -247,7 +249,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				else if (iscntrl(*c)){
 					if (*c == '\n') S = SAUT_DE_LIGNE;
 					else{
-						printf ("Erreur INIT ligne %d\n",nline);
+						WARNING_MSG("Erreur INIT ligne %d\n",nline);
 						*erreur =1;
 					}
 				}
@@ -287,7 +289,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 							S = SIGNE;
 							break;
 						default:
-						 	printf ("Erreur INIT ligne %d\n",nline);
+						 	WARNING_MSG("Erreur INIT ligne %d\n",nline);
 							*erreur =1;
 					}
 				}
@@ -302,7 +304,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				else if (*c == ':'||*c == '.') S = TERM;
 				else if (isspace(*c)) S = TERM;
 				else{
-					printf ("Erreur SYMBOLE ligne %d\n",nline);
+					WARNING_MSG("Erreur SYMBOLE ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -311,7 +313,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				if (isalpha(*c)) S = DIRECTIVE;
 				else if(isspace(*c)) S = TERM;
 				else{
-					printf ("Erreur DIRECTIVE ligne %d\n",nline);
+					WARNING_MSG("Erreur DIRECTIVE ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -321,7 +323,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				else if (*c == ',') S = TERM;
 				else if (isspace(*c)) S = TERM;
 				else{
-					printf ("Erreur REGISTRE ligne %d\n",nline);
+					WARNING_MSG("Erreur REGISTRE ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -329,7 +331,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 			case DEUX_POINTS:
 				if (isspace(*c)) S = TERM;
 				else{
-					printf ("Erreur DEUX-POINTS ligne %d\n",nline);
+					WARNING_MSG("Erreur DEUX-POINTS ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -337,7 +339,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 			case PARENTHESE:
 				if (isspace(*c)) S = TERM;
 				else{
-					printf ("Erreur PARENTHESE ligne %d\n",nline);
+					WARNING_MSG("Erreur PARENTHESE ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -345,7 +347,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 			case VIRGULE:
 				if (isspace(*c)) S = TERM;
 				else{
-					printf ("Erreur VIRGULE ligne %d\n",nline);
+					WARNING_MSG("Erreur VIRGULE ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -359,7 +361,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 					if(*c=='0')S=DECIMAL_ZEROS;
 					else S=DECIMAL;	
 				else{
-					printf ("Erreur SIGNE ligne %d\n",nline);
+					WARNING_MSG("Erreur SIGNE ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -370,7 +372,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				else if (isspace(*c)) S = TERM;
 				else if (isdigit(*c)&& 0<=(*c)<=7)S = OCTATE;
 				else{
-					printf("Erreur DECIMAL-ZEROS ligne %d\n",nline);
+					WARNING_MSG("Erreur DECIMAL-ZEROS ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -378,7 +380,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 			case HEXA_DEBUT:
 				if(isxdigit(*c)) S = HEXA;
 				else{
-					printf("Erreur HEXA_DEBUT ligne %d\n",nline);
+					WARNING_MSG("Erreur HEXA_DEBUT ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -388,7 +390,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				else if(isspace(*c) && *c == '\n') S = TERM;
 				else if(*c == '(') S = BASE;
 				else{
-					printf("Erreur OCTATE ligne %d\n",nline);
+					WARNING_MSG("Erreur OCTATE ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -398,7 +400,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				else if(isspace(*c) && *c == '\n') S = TERM;
 				else if(*c == '(') S = BASE;
 				else{
-					printf("Erreur DECIMAL ligne %d\n",nline);
+					WARNING_MSG("Erreur DECIMAL ligne %d\n",nline);
 					*erreur =1;
 				}
 				break;
@@ -408,7 +410,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				else if(isspace(*c) && *c == '\n') S = TERM;
 				else if(*c == '(') S = BASE;
 				else{
-					printf("Erreur HEXA ligne %d\n",nline);
+					WARNING_MSG("Erreur HEXA ligne %d",nline);
 					*erreur =1;
 				}
 				break;
@@ -420,16 +422,18 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 			case BASE:
 				if( *c == ')') S = BASE_OF;
 				else if (*(c++)=='\0'){
-					printf(" ok erreur base offset ligne %d\n",nline);/*erreur si pas de parenthèse a la fin*/
+					WARNING_MSG(" ok erreur base offset ligne %d\n",nline);/*erreur si pas de parenthèse a la fin*/
 					*erreur =1;
 				}
+				break;
+			case BASE_OF:
 				break;
   		}
 		c++;
 		
  	} 
 	if (S == BASE){
-		printf("erreur base offset ligne %d\n",nline);
+		WARNING_MSG("erreur base offset ligne %d",nline);
 		*erreur =1;
 	}
 	*F=enfiler(creerElement(token, S ,nline),*F);

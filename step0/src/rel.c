@@ -151,7 +151,7 @@ void pseudoInstruction( ListeG* instr){
 		*instr=inserer(creerInstruction("lw", ((Instruction*)((*instr)->pval))->type, 2, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=((Instruction*)((*instr)->pval))->op[0].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
-		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=((Instruction*)((*instr)->pval))->op[1].categorie;
+		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=BASE_OF;
 		char mot[256];
 		strcpy(mot,((Instruction*)((*instr)->pval))->op[1].lexeme);
 		strcat(mot,"(");
@@ -173,7 +173,7 @@ void pseudoInstruction( ListeG* instr){
 		*instr=inserer(creerInstruction("sw", ((Instruction*)((*instr)->pval))->type, 2, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=((Instruction*)((*instr)->pval))->op[0].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
-		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=((Instruction*)((*instr)->pval))->op[1].categorie;
+		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=BASE_OF;
 		char mot[256];
 		strcpy(mot,((Instruction*)((*instr)->pval))->op[1].lexeme);
 		strcat(mot,"($1)");

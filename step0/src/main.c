@@ -146,7 +146,16 @@ rel(&Inst, Do1, &Symb, &RelocInst, &RelocData);
 			A=A->suiv;
 		}while (A!=Inst);
 	}
-
+printf("\nAffichage section SYMBOLE après relocation\n");
+	if(listeVide(Symb))
+		printf("la section SYMBOLE est vide");
+	else{
+		ListeG D=Symb;
+		do{
+			afficherSymb((Symbole*)(D->suiv->pval) );
+			D=D->suiv;
+		}while (D!=Symb);
+	}
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);
     /* ---------------- Free memory and terminate -------------------*/

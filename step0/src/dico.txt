@@ -1,4 +1,4 @@
-29
+25
 add R 3 Reg Reg Reg rd rs rt 000000 00000 100000
 addi I 3 Reg Reg Imm rt rs im 001000
 sub R 3 Reg Reg Reg rd rs rt 000000 00000 100010
@@ -24,7 +24,3 @@ j J 1 Abs ta 000010
 jal J 1 Abs ta 000011
 jr J 1 Reg rs 000000 0000000000 001000
 nop P 0 000000 00000 00000 00000 00000 000000
-move R 2 Reg Reg rt rs
-neg R 2 Reg Reg rt rs
-li I 2 Reg Imm rt im
-blt I 3 Reg Reg Abs rt rs ta
