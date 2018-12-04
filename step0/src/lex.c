@@ -219,7 +219,8 @@ void lex_read_line( char *line, int nline, File* F) {
 
 
     /* TODO : faire l'analyse lexical de chaque token ici et les ajouter dans une collection*/
-    /* ATTENTION: getNextToken est à recoder completement*/
+    /* ATTENTION: 
+getNextToken est à recoder completement*/
     	while( (current_address= getNextToken(&token, current_address)) != NULL){
     
   	/* definition des etats*/

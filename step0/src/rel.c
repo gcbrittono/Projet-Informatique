@@ -93,6 +93,178 @@ void rel(ListeG Instruct){
 
 
 
+/*typedef struct {
+	char* nom;
+	etat type;
+	char type_inst;
+	int nbop;
+	int ligne;
+	unsigned int decalage;
+	Operande op[3];
+} Instruction;*/
+
+
+
+/**********fONCTION UTILISÉ POUR COMPTER LE NOMBRE DE BITS*******************************************************************************/
+int nombre_bits_variable(int operande)
+{
+    int i = operande;
+    int compteur = 0;
+    while(i > 0)
+    {
+        i >>= 1;
+        compteur++;
+    }
+    return compteur;
+}
+
+/****************************************************************************************************************************************/
+
+/*typedef enum {INIT, COMMENTAIRE, SYMBOLE, DIRECTIVE, REGISTRE,  DEUX_POINTS, VIRGULE, SAUT_DE_LIGNE, HEXA_DEBUT, OCTATE, DECIMAL_ZEROS, DECIMAL, TERM, HEXA, CITATION,PARENTHESE} etat;*/
+
+/****************************************************************/
+/******** Machine a etats pour la verification des operandes*****/
+/****************************************************************/
+
+int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[60]){
+	enum {INIT_OP, NOMBRE_ENTIER, REGISTRE_OP, OFFSET_BASE, SYMBOLE_OP};
+
+	char* instr_nom;	
+	char* dummy_op;
+	int state = INIT;
+	int index;
+	int nombreInstruc;
+
+	FILE* dictionnaire;
+
+	dictionnaire = fopen("src/dictionnaire_instruction.txt","r");
+	if (dictionnaire == NULL){
+		printf("le dictionnaire n'a pas été ouvert \n"); 
+		return; /*gestion erreurs*/
+	}
+
+	fscanf(dictionnaire, "%d",&nombreInstruc); 
+
+
+
+	etat inst_categorie;
+	type_op typeofoperande;
+
+	intsr_nom = inst->nom;
+	dummy_op = inst->op[pos_operand]->lexeme;
+	inst_categorie = inst->op[pos_operande]->categorie;
+	typeofoperande = inst->op[pos_operande]->type;
+	
+	index = funHash(instr_nom,nombreInstruc);
+
+	switch (state)
+​	{
+	    case INIT_OP:
+		if(ints_categorie = SYMBOLE)
+			state = SYMBOLE_OP;
+		else if (ints_categorie = BASE_OF)
+			state = OFFSET_BASE;
+		else if(ints_categorie = DECIMAL)
+			state = NOMBRE_ENTIER;
+		else if(ints_categorie = REGISTRE)
+			state = REGISTRE_OP;
+	        break;
+
+	    case NOMBRE_ENTIER:
+		if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)/******************** entier signe Immediat***************************/
+		{			
+			if(strcmp(hashTable[index].type_op[pos_operande],"imm")==0)
+				return 1;
+			else 
+				return 0;	
+		};	
+/*****************************************************************************************************************************************/		
+
+		else if (atoi(lexeme)>0 && atoi(lexeme)<31)/*****************************entier non signe sa*****************************/
+		{	
+			if(strcmp(hashTable[index].type_op[pos_operande],"sa")==0)
+				return 1;		
+			else 
+				return 0;
+		};
+
+	        break;
+/****************************************************************************************************************************************/		
+		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
+		else if (atoi(lexeme)%4 == 0)/*****************************Relatif rel ***********************************/
+		{	
+			if(strcmp(hashTable[index].type_op[pos_operande],"rel")==0)
+				return 1;		
+			else 
+				return 0;
+		};
+
+	        break;
+/*****************************************************************************************************************************************/
+
+		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
+		else if (atoi(lexeme)%4 == 0)/*****************************Relatif abs *****************************/
+		{	
+			if(strcmp(hashTable[index].type_op[pos_operande],"abs")==0)
+				return 1;		
+			else 
+				return 0;
+		};
+
+	        break;
+
+
+
+
+
+	    case REGISTRE_OP:
+		if (atoi(lexeme)>0 && atoi(lexeme)<31) /*registre  reg*/
+		{
+			if(strcmp(hashTable[index].type_op[pos_operande],"reg")==0)
+				return 1;
+			else 
+				return 0;
+
+
+		}; 
+
+
+	        break;
+
+	    case OFFSET_BASE:
+		if (atoi(lexeme)>0 && atoi(lexeme)<31) /*registre*/ 
+		{	
+			if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)/* entier signe Immediat*/
+	        	{
+				if(strcmp(hashTable[index].type_op[pos_operande],"bas")==0)
+					return 1;
+			}
+
+		
+
+		else
+			return 0;
+		
+		};
+
+		break;
+
+	    case SYMBOLE_OP:
+
+	        break;
+
+
+	    default:
+
+	}
+
+
+}
+
+
+
+
+
 
 
 
