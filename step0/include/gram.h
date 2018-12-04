@@ -12,7 +12,7 @@
 /*Définition de macro etats*/
 typedef enum {DATA, BSS, TEXT} Section;
 
-typedef enum {reg, imm, sa, bas, rel, abs} type_op;
+typedef enum {reg, imm, sa, bas, rel, abs} type_operande;
 
 /*Definition de structure pour charger les donees de l'instruction dans un dictionnaire, il y a les donnes de symbole de l'instruction, type soit r,i ou j et le nombre des operands*/
 typedef struct DictionnaireIn{ 
@@ -20,6 +20,7 @@ typedef struct DictionnaireIn{
     	char type;
     	int operands;
 	int col;
+	type_operande type[2];
 } Dico;
 
 /*Liste circulaire Générique*/
@@ -31,7 +32,7 @@ typedef struct el{
 typedef struct {
 	char* lexeme;
 	etat categorie;
-	type_op type;
+	type_operande type;
 } Operande;
 
 typedef struct {

@@ -148,7 +148,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 
 
 	etat inst_categorie;
-	type_op typeofoperande;
+	type_operande typeofoperande;
 
 	intsr_nom = inst->nom;
 	dummy_op = inst->op[pos_operand]->lexeme;
@@ -173,7 +173,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 	    case NOMBRE_ENTIER:
 		if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)/******************** entier signe Immediat***************************/
 		{			
-			if(strcmp(hashTable[index].type_op[pos_operande],"imm")==0)
+			if(strcmp(hashTable[index].type_operande[pos_operande],"imm")==0)
 				return 1;
 			else 
 				return 0;	
@@ -182,7 +182,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 
 		else if (atoi(lexeme)>0 && atoi(lexeme)<31)/*****************************entier non signe sa*****************************/
 		{	
-			if(strcmp(hashTable[index].type_op[pos_operande],"sa")==0)
+			if(strcmp(hashTable[index].type_operande[pos_operande],"sa")==0)
 				return 1;		
 			else 
 				return 0;
@@ -193,7 +193,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
 		else if (atoi(lexeme)%4 == 0)/*****************************Relatif rel ***********************************/
 		{	
-			if(strcmp(hashTable[index].type_op[pos_operande],"rel")==0)
+			if(strcmp(hashTable[index].type_operande[pos_operande],"rel")==0)
 				return 1;		
 			else 
 				return 0;
@@ -205,7 +205,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
 		else if (atoi(lexeme)%4 == 0)/*****************************Relatif abs *****************************/
 		{	
-			if(strcmp(hashTable[index].type_op[pos_operande],"abs")==0)
+			if(strcmp(hashTable[index].type_operande[pos_operande],"abs")==0)
 				return 1;		
 			else 
 				return 0;
@@ -220,7 +220,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 	    case REGISTRE_OP:
 		if (atoi(lexeme)>0 && atoi(lexeme)<31) /*registre  reg*/
 		{
-			if(strcmp(hashTable[index].type_op[pos_operande],"reg")==0)
+			if(strcmp(hashTable[index].type_operande[pos_operande],"reg")==0)
 				return 1;
 			else 
 				return 0;
@@ -236,7 +236,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 		{	
 			if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)/* entier signe Immediat*/
 	        	{
-				if(strcmp(hashTable[index].type_op[pos_operande],"bas")==0)
+				if(strcmp(hashTable[index].type_operande[pos_operande],"bas")==0)
 					return 1;
 			}
 
