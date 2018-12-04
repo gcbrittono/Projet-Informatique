@@ -22,10 +22,11 @@ typedef struct DictionnaireIn{
 } Dico;
 
 /*Liste circulaire Générique*/
-typedef struct el{
+struct el{
 	void* pval;
 	struct el* suiv;
-} *ListeG;
+};
+typedef struct el * ListeG;
 
 typedef struct {
 	char* lexeme;

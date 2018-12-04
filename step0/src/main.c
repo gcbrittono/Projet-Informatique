@@ -14,6 +14,7 @@
 #include <notify.h>
 #include <lex.h>
 #include <gram.h>
+#include <rel.h>
 
 /**
  * @param exec Name of executable.
@@ -134,7 +135,7 @@ printf("\nAffichage section SYMBOLE\n");
 /*---------------relocation---------------------------------*/
 ListeG RelocInst=NULL;
 ListeG RelocData=NULL;
-rel(&Inst, Do1, &RelocInst, &RelocData);
+rel(&Inst, Do1, &Symb, &RelocInst, &RelocData);
 	printf("\nAffichage section TEXT après relocation\n");
 	if(listeVide(Inst))
 		printf("la section TEXT est vide");

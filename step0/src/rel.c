@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,6 +8,7 @@
 #include <rel.h>
 #include <global.h>
 #include <notify.h>
+
 
 void registre( char* reg, registres tab[32], int ligne){
 	int i=0;;
@@ -55,7 +57,7 @@ void libererInstruction(ListeG* L){
 void associerReg(ListeG Inst,registres tableau[32],int ligne){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
-	for(i; i<nb;i++){
+	for(i=0; i<nb;i++){
 		if(((Instruction*)(Inst->pval))->op[i].categorie==REGISTRE)
 			registre(((Instruction*)(Inst->pval))->op[i].lexeme,tableau,ligne);
 	}
@@ -69,8 +71,8 @@ FILE* re;
 		ERROR_MSG("le dictionnaire de registre n'a pas été ouvert "); 
 		return; /*gestion erreurs*/
 	}
-	char* reg1[10]/*=malloc(sizeof(*reg1))*/;
-	char* reg2[4]/*=malloc(sizeof(*reg2))*/;
+	char reg1[10]/*=malloc(sizeof(*reg1))*/;
+	char reg2[4]/*=malloc(sizeof(*reg2))*/;
 	int i;
 	for (i=0;i<32;i++){
         	fscanf(re, "%s %s",reg1,reg2);
@@ -128,7 +130,7 @@ void remplacer_instr(ListeG listeInstr, char* nom_instr_final, int nombop_instr_
 	((Instruction*)(listeInstr->pval))->type_inst = type_instr_final;
 	((Instruction*)(listeInstr->pval))->nbop = nombop_instr_final;
 	int i=0;
-	for(i;i<nombop_instr_final;i++){
+	for(i=0;i<nombop_instr_final;i++){
 		if(((Instruction*)(listeInstr->pval))->op[i].lexeme!=NULL)
 			free(((Instruction*)(listeInstr->pval))->op[i].lexeme);
 		((Instruction*)(listeInstr->pval))->op[i].lexeme = strdup(ope[i]);
@@ -277,10 +279,8 @@ void pseudoInstruction( ListeG* instr){
 void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
-	for(i; i<nb;i++){
+	for(i=0; i<nb;i++){
 		if((((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE) && (strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0)){
-			/*Symbole* Symbole = trouverSymbole(char* nom, ligne, Symb);*/
-			printf("relocation text ligne %d ",ligne);
 			*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(((Instruction*)(Inst->pval))->op[i].lexeme, ligne, Symb), 1), *RelocInst);
 		}
 	}
@@ -290,14 +290,8 @@ void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData){
 	int nb=((Donnee1*)(Data->pval))->nbop;
 	int i = 0;
 	ListeG P=((Donnee1*)(Data->pval))->op->suiv;
-		if(listeVide(*RelocData)){
-		printf("la section RelocData est vide");
-		return;
-	}
-	for(i; i<nb;i++){
+	for(i=0; i<nb;i++){
 		if(((OpeD*)(P->pval))->type==SYMBOLE){
-			printf("relocation data ligne %d ",ligne);
-			
 			*RelocData=ajouterQueue(symbole_find(Data, trouverSymbole(((OpeD*)(P->pval))->valeur.as_et, ligne, Symb), 0), *RelocData);
 			printf("parfait");
 		}
@@ -331,11 +325,7 @@ Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, ListeG* RelocData){
 	registres tab[32];
 	chargeRegistre(tab);
-
-	if(listeVide(*Instruct)){
-		printf("la section TEXT est vide");
-		return;
-	}
+	if(!listeVide(*Instruct)){
 	ListeG A=*Instruct;
 	do{
 		int vrai=0;/* passe à 1 si l'opérande est une pseudo instruction qui sera remplacé par deux instruction*/
@@ -354,16 +344,14 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 			}
 		A=A->suiv;
 	}while (A!=*Instruct);
-
-	if(listeVide(Data)){
-		printf("la section DATA est vide");
-		return;
 	}
+	if(!listeVide(Data)){
 	ListeG B=Data;
 	do{
 		relocationData(B->suiv,Etiquette,((Donnee1*)(B->suiv->pval))->ligne, RelocData);
 		B=B->suiv;
 	}while (B!=Data);
+	}
 }
 
 

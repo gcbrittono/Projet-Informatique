@@ -1,0 +1,30 @@
+29
+add R 3 Reg Reg Reg rd rs rt 000000 00000 100000
+addi I 3 Reg Reg Imm rt rs im 001000
+sub R 3 Reg Reg Reg rd rs rt 000000 00000 100010
+mult R 2 Reg Reg rs rt 000000 0000000000 011000
+div R 2 Reg Reg rs rt 000000 0000000000 011010
+and R 3 Reg Reg Reg rd rs rt 000000 00000 100100
+or R 3 Reg Reg Reg rd rs rt 000000 00000 100101
+xor R 3 Reg Reg Reg rd rs rt 000000 00000 100110
+rotr I 3 Reg Reg sa rd rt sa 000000 0000 1 000010
+sll I 3 Reg Reg sa rd rs sa 000000 00000 000000
+srl I 3 Reg Reg sa rd rs sa 000000 0000 0 000010
+slt R 3 Reg Reg Reg rd rs rt 000000 00000 101010
+lw I 2 Reg Bas rt of rs 100011
+sw I 2 Reg Bas rt of rs 101011
+lui I 2 Reg Imm rt im 001111 00000
+mfhi J 1 Reg rd 000000 0000000000 00000 010000
+mflo J 1 Reg rd 000000 0000000000 00000 010010
+beq I 3 Reg Reg Rel rs rt of 000100
+bne I 3 Reg Reg Rel rs rt of 000101
+bgtz I 2 Reg Rel rs of 000111 00000
+blez I 2 Reg Rel rs of 000110 00000
+j J 1 Abs ta 000010
+jal J 1 Abs ta 000011
+jr J 1 Reg rs 000000 0000000000 001000
+nop P 0 000000 00000 00000 00000 00000 000000
+move R 2 Reg Reg rt rs
+neg R 2 Reg Reg rt rs
+li I 2 Reg Imm rt im
+blt I 3 Reg Reg Abs rt rs ta

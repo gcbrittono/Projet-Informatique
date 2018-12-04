@@ -7,7 +7,8 @@
  * These routines perform the analysis of the lexeme of an assembly source code file.
  */
 
-#define _POSIX_C_SOURCE 200112L
+/*#define _POSIX_C_SOURCE 200112L*/
+#define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +18,7 @@
 #include <global.h>
 #include <notify.h>
 #include <lex.h>
+
 
 /*fonction qui crée une liste*/
 File creerFile(){
@@ -366,7 +368,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				if(*c == 'x'||*c == 'X' ) S = HEXA_DEBUT;
 				else if (*c == '\n') S = TERM;
 				else if (isspace(*c)) S = TERM;
-				else if (isdigit(*c)&&(0<=(*c)<=7))S = OCTATE;
+				else if (isdigit(*c)&& 0<=(*c)<=7)S = OCTATE;
 				else{
 					printf("Erreur DECIMAL-ZEROS ligne %d\n",nline);
 					*erreur =1;

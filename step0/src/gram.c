@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -67,7 +68,7 @@ Symbole* creerSymbole(char* lex,	etat cat, int lig, Section section ,int dec){
 }
 
 ListeG ajouterQueue(void* e, ListeG L){
-	ListeG A=calloc(1,sizeof(e)+sizeof(A->suiv));
+	ListeG A=(ListeG)calloc(1,sizeof(struct el));
 	if (A==NULL)
 		return NULL;
 	(A->pval)=e;
@@ -84,7 +85,7 @@ ListeG ajouterQueue(void* e, ListeG L){
 void afficherInst(Instruction* L){
 	printf("Décalage %d : [ SYMBOLE ] : %s : nombre operande : %d : opérandes : ",L->decalage, L->nom, L->nbop);
 	int i=0;
-	for(i;i<=L->nbop-1;i++)
+	for(i=0;i<L->nbop;i++)
 		printf(" %s / ",L->op[i].lexeme);
 	printf("\n---------------------------------------------------------------------------\n");
 }
@@ -95,7 +96,7 @@ void afficherDo1(Donnee1* L){
 	ListeG o=L->op;
 	Opedonnee d;
 	int i=0;
-	for(i;i<=L->nbop-1;i++){
+	for(i=0;i<=L->nbop-1;i++){
 		d=((OpeD*)(o->pval))->valeur;
 		printf(" %u / ",d);
 		o=o->suiv;
@@ -149,7 +150,7 @@ int funHash(char* str, int taille){
 	long hash=new[0];
 	int i=1;
 	int len = strlen(new);
-	for(i; i < len; ++i)
+	for(i=0; i < len; ++i)
 		hash +=(((int)(89*pow(67,i)))%(50-i))*new[i];
 	hash=hash%50;
 	return hash;
@@ -469,7 +470,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			int position;
 			File H=G;
 			/*printf("postion %d \n",funHash(G->lexeme, taille));*/
-			if((tableau[funHash(G->lexeme, taille)].col==-1) || ((tableau[funHash(G->lexeme, taille)].col==-2) && (strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0)) || ((tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0))){
+			if((tableau[funHash(G->lexeme, taille)].col==-1) || (tableau[funHash(G->lexeme, taille)].col==-2) && (strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0) || (tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0)){
 				printf("erreur, l'instruction n'existe pas ligne %d \n", G->ligne);
 				*erreur =1;
 				while (G->ligne==H->ligne)
@@ -496,7 +497,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						G=G->suiv;
 						*erreur =1;
 					}
-					else if(((i<(((Instruction*)((*Inst)->pval))->nbop)-1) && (G->suiv->categorie==VIRGULE)) || i==(((Instruction*)((*Inst)->pval))->nbop)-1 && (G->categorie!=VIRGULE)){
+					else if((((i<(((Instruction*)((*Inst)->pval))->nbop)-1) && (G->suiv->categorie==VIRGULE))) || (i==(((Instruction*)((*Inst)->pval))->nbop)-1 && (G->categorie!=VIRGULE))){
 						((Instruction*)((*Inst)->pval))->op[i].categorie=G->categorie;
 						((Instruction*)((*Inst)->pval))->op[i].lexeme=strdup(G->lexeme);
 						((Instruction*)((*Inst)->pval))->op[i].typeadr=strdup(tableau[position].type_op[i]);
