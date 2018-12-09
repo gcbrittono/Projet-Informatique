@@ -31,7 +31,7 @@ union inst_poly {
 struct R r_inst ;
 struct I i_inst ;
 struct J j_inst ;
-char code[4], ;  
+char code[4] ;  
 } ;
 
 unsigned int swap (unsigned int code);       

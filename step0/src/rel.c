@@ -24,7 +24,7 @@ void registre( char* reg, registres tab[32], int ligne){
 	if(indice!=-1)
 		strcpy(reg,tab[indice].reg);
 	else if(ok==0)
-		printf("erreur ce registre n'existe pas ligne %d \n",ligne);/*gestion erreurs arreter compil?*/
+		ERROR_MSG("erreur ce registre n'existe pas ligne %d \n",ligne);/*gestion erreurs arreter compil?*/
 }
 
 ListeG inserer(void* e, ListeG L){
@@ -44,6 +44,8 @@ ListeG inserer(void* e, ListeG L){
 }
 
 void libererInstruction(ListeG* L){
+	if(listeVide(*L))
+		return;
 	while((*L)->suiv!=*L){
 		ListeG A=(*L)->suiv;
 		free(((Instruction*)(A->pval))->nom);
@@ -52,6 +54,78 @@ void libererInstruction(ListeG* L){
 	}
 	free(((Instruction*)((*L)->pval))->nom);
 	free(*L);
+}
+
+void libererDo1(ListeG* L){
+	if(listeVide(*L))
+		return;
+	while((*L)->suiv!=*L){
+		ListeG A=(*L)->suiv;
+		free(((Donnee1*)(A->pval))->lexeme);
+		(*L)->suiv=(*L)->suiv->suiv;
+		free(A);
+	}
+	free(((Donnee1*)((*L)->pval))->lexeme);
+	free(*L);
+}
+
+void libererDo2(ListeG* L){
+	if(listeVide(*L))
+		return;
+	while((*L)->suiv!=*L){
+		ListeG A=(*L)->suiv;
+		free(((Donnee2*)(A->pval))->lexeme);
+		(*L)->suiv=(*L)->suiv->suiv;
+		free(A);
+	}
+	free(((Donnee2*)((*L)->pval))->lexeme);
+	free(*L);
+}
+
+void libererSymbole(ListeG* L){
+	if(listeVide(*L))
+		return;
+	while((*L)->suiv!=*L){
+		ListeG A=(*L)->suiv;
+		free(((Symbole*)(A->pval))->lexeme);
+		(*L)->suiv=(*L)->suiv->suiv;
+		free(A);
+	}
+	free(((Symbole*)((*L)->pval))->lexeme);
+	free(*L);
+}
+
+void libererFile(File* L){
+	if(estVide(*L))
+		return;
+	while((*L)->suiv!=*L){
+		File A=(*L)->suiv;
+		free(A->lexeme);
+		(*L)->suiv=(*L)->suiv->suiv;
+		free(A);
+	}
+	free((*L)->lexeme);
+	free(*L);
+}
+
+void libererregistre(registres tab[], int taille){
+	int i;
+	for(i=0;i<taille;i++){
+		free(tab[i].mnemo);
+		free(tab[i].reg);
+	}
+}
+
+void libererdico(Dico d[], int taille){
+	int i;
+	for(i=0;i<taille;i++){
+		if(d[i].col!=-1){
+			free(d[i].symbole);
+			int j;
+			for(j=0;j<d[i].operands;j++)
+				free(d[i].type_op[j]);
+		}
+	}
 }
 
 void associerReg(ListeG Inst,registres tableau[32],int ligne){
@@ -322,6 +396,7 @@ Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 	}
 }
 
+
 void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, ListeG* RelocData){
 	registres tab[32];
 	chargeRegistre(tab);
@@ -352,6 +427,7 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 		B=B->suiv;
 	}while (B!=Data);
 	}
+	libererregistre(tab, 32);
 }
 
 

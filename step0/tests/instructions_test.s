@@ -2,32 +2,31 @@
 
 #INSTRUCTION ARITHMÉTIQUES
 .text
-ADd $22, $10, $94  #ADRESSAGE DIRECT
-ADDU $19, $94, 0xFF #ADRESSAGE IMMÉDIAT
+ADd $22, $10, $20  #ADRESSAGE DIRECT
 ADDI $10, $24, Xx #ADRESSAGE IMMÉDIAT
-sub $55, $71, 621 #ADRESSAGE IMMÉDIAT
-MULT $22, $88 
-DIV $44,$85 
+sub $10, $30, 621 #ADRESSAGE IMMÉDIAT
+MULT $22, $15
+DIV $7,$11 
 
 #INSTRUCTIONS LOGIQUES
-AND $rd, $rs, $rt 
-OR $95, lv, $220
-XOR $25, $24, $32
+AND $3, $5, $8 
+OR $11, 6, $4
+XOR $25, $24, $31
 
 #INSTRUCTIONS DE DÉCALAGE
-_ron01: ROTR $55, $32, sa
-mal: SLL $47, $96, $33
-SRL
+_ron01: ROTR $13, $19, sa
+mal: SLL $5, $9, $3
+
 
 #INSTRUCTIONS SET 
-SLT $74, $69, cl
+SLT $7, $6, cl
 
 #INSTRUCTIONS LOAD/STORE
-Prim: LW $12, 0x89($544)
-_best: SW $36, -78($78)
-mot: LUI $44, 250
-lot12: MFHI $89
-_gfg: MFLO $rd
+Prim: LW $12, 0x89($4)
+_best: SW $16, -78($18)
+mot: LUI $27, 250
+#lot12: mfHI $19
+_gfg: MFLO $11
 
 .data
 .word 45

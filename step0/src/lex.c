@@ -300,7 +300,7 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 		
 			case SYMBOLE:
 				if(*c == '(') S = BASE;
-				else if (isalpha(*c)) S = SYMBOLE;
+				else if (isalnum(*c)) S = SYMBOLE;
 				else if (*c == ':'||*c == '.') S = TERM;
 				else if (isspace(*c)) S = TERM;
 				else{
@@ -421,8 +421,8 @@ void lex_read_line( char *line, int nline, File* F, int* erreur) {
 				break;
 			case BASE:
 				if( *c == ')') S = BASE_OF;
-				else if (*(c++)=='\0'){
-					WARNING_MSG(" ok erreur base offset ligne %d\n",nline);/*erreur si pas de parenthèse a la fin*/
+				else if (*(c+1)=='\0'){
+					WARNING_MSG(" ok erreur base offset ligne %d",nline);/*erreur si pas de parenthèse a la fin*/
 					*erreur =1;
 				}
 				break;

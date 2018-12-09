@@ -156,15 +156,37 @@ printf("\nAffichage section SYMBOLE après relocation\n");
 			D=D->suiv;
 		}while (D!=Symb);
 	}
+
+printf("\nAffichage section relocation text après relocation\n");
+	if(listeVide(RelocInst))
+		printf("la section de relocation text est vide");
+	else{
+		ListeG E=RelocInst->suiv;
+		do{
+			printf("- %d -",((table_relocation*)(E->pval))->addr_relative);
+			E=E->suiv;
+		}while (E!=RelocInst->suiv);
+	}
+
+printf("\nAffichage section relocation data après relocation\n");
+	if(listeVide(RelocData))
+		printf("la section de relocation data est vide");
+	else{
+		ListeG F=RelocData->suiv;
+		do{
+			printf("- %d -",((table_relocation*)(F->pval))->addr_relative);
+			F=F->suiv;
+		}while (F!=RelocData->suiv);
+	}
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);
     /* ---------------- Free memory and terminate -------------------*/
-	/*libererInstruction(&Inst);*/
-/*
-	liberer(&Symb);
-	liberer(&Do2);
-	liberer(&Do1);
-*/
+	libererInstruction(&Inst);
+
+	libererSymbole(&Symb);
+	libererDo2(&Do2);
+	libererDo1(&Do1);
+	libererFile(&F);
     /* TODO free everything properly*/
 
     exit( EXIT_SUCCESS );

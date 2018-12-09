@@ -16,8 +16,6 @@ void registre( char* reg, registres tab[32], int ligne);
 
 ListeG inserer(void* e, ListeG L);
 
-void libererInstruction(ListeG* L);
-
 void associerReg(ListeG Inst,registres tableau[32],int ligne);
 
 void chargeRegistre(registres tab[32]);
@@ -48,5 +46,19 @@ table_relocation*  symbole_find(ListeG L, Symbole* symb, int i /*entier qui indi
 void remplacer_instr(ListeG listeInstr, char* nom_instr_final, int nombop_instr_final, char type_instr_final, char* ope[], etat typop[]);
 
 void pseudoInstruction( ListeG* instr);
+
+void libererInstruction(ListeG* L);
+
+void libererDo1(ListeG* L);
+
+void libererDo2(ListeG* L);
+
+void libererSymbole(ListeG* L);
+
+void libererFile(File* L);
+
+void libererregistre(registres tab[], int taille);
+
+void libererdico(Dico d[], int taille);
 
 #endif 

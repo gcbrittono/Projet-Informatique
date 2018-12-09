@@ -6,6 +6,7 @@
 #include <strings.h>
 #include <gram.h>
 #include <lex.h>
+#include <rel.h>
 #include <unistd.h>
 #include <math.h>
 #include <global.h>
@@ -487,9 +488,24 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			int position;
 			File H=G;
 			/*printf("postion %d \n",funHash(G->lexeme, taille));*/
-			if((tableau[funHash(G->lexeme, taille)].col==-1) || ((tableau[funHash(G->lexeme, taille)].col==-2) && ((strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0) || ((tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0))))){
-				WARNING_MSG("erreur, l'instruction ligne %d  n'existe pas", G->ligne);
+			if((tableau[funHash(G->lexeme, taille)].col==-1)){
+				WARNING_MSG("erreur1, l'instruction ligne %d  n'existe pas", G->ligne);
 				*erreur =1;
+				while (G->ligne==H->ligne)
+					G=G->suiv;
+				S=INIT;
+			}
+			else if((strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0) && (tableau[funHash(G->lexeme, taille)].col==-2)){
+				WARNING_MSG("erreur2, l'instruction ligne %d  n'existe pas", G->ligne);
+				*erreur =1;
+				while (G->ligne==H->ligne)
+					G=G->suiv;
+				S=INIT;
+			}
+			else if((strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0) && (tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0)){
+				WARNING_MSG("erreur3, l'instruction ligne %d  n'existe pas", G->ligne);
+				*erreur =1;
+				printf("%s -- ", tableau[tableau[funHash(G->lexeme, taille)].col].symbole);
 				while (G->ligne==H->ligne)
 					G=G->suiv;
 				S=INIT;
@@ -524,6 +540,8 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else {
 						WARNING_MSG("probleme d'alternance avec les virgules ligne %d", G->ligne);
 						*erreur =1;
+						printf("%d--", i);
+						printf("%d--", G->categorie);
 						while (G->ligne==H->ligne)
 							G=G->suiv;
 					}
@@ -595,5 +613,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 	fclose(dictionnaire);
 	
 	machine_a_etat_gram (F, Inst, Symb, Do1, Do2, hashTable, nombreInstruc, erreur);
+
+	libererdico(hashTable, nombreInstruc);
 
 }
