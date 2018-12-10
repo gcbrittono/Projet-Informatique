@@ -15,6 +15,7 @@
 #include <lex.h>
 #include <gram.h>
 #include <rel.h>
+#include <gen.h>
 
 /**
  * @param exec Name of executable.
@@ -178,6 +179,11 @@ printf("\nAffichage section relocation data après relocation\n");
 			F=F->suiv;
 		}while (F!=RelocData->suiv);
 	}
+/*--------------------------Generation----------------------------------*/
+
+dico_bin tab[25];
+chargeDico(tab,25);
+
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);
     /* ---------------- Free memory and terminate -------------------*/

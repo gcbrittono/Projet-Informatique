@@ -28,11 +28,21 @@ struct J{
 };
 
 union inst_poly {
-struct R r_inst ;
-struct I i_inst ;
-struct J j_inst ;
-char code[4] ;  
+	struct R r_inst ;
+	struct I i_inst ;
+	struct J j_inst ;
+	char code[4] ;  
 } ;
 
-unsigned int swap (unsigned int code);       
+typedef struct { 
+	char* instruction;
+	char type;
+	int nbop;
+	char* type_op[3];
+	long code
+} dico_bin;
+
+unsigned int swap (unsigned int code);
+
+void chargeDico(dico_bin tab[], int taille);   
 #endif 

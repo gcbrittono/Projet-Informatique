@@ -7,7 +7,7 @@
 
 
     Lw $t0 , lunchtime
-    LW $6, -200($7)
+    LW $6, -200($t3)
     ADDI $t1,$zero,8
 boucle:
     BEQ $t0 , $t1 , byebye
@@ -16,7 +16,7 @@ boucle:
     J boucle 
     NOP
 byebye:
-    JAL vite(viteauru)
+    JAL vite
 
 .data
 lunchtime: 

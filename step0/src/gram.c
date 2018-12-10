@@ -506,6 +506,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 				WARNING_MSG("erreur3, l'instruction ligne %d  n'existe pas", G->ligne);
 				*erreur =1;
 				printf("%s -- ", tableau[tableau[funHash(G->lexeme, taille)].col].symbole);
+				printf("%s -- ",tableau[funHash(G->lexeme, taille)].symbole);
 				while (G->ligne==H->ligne)
 					G=G->suiv;
 				S=INIT;
@@ -577,7 +578,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 	Dico hashTable[60];
 	int index;
 	/*char* instruc=malloc(sizeof(*instruc));*/
-	char instruc[6];
+	char instruc[10];
 	char ty;
 	int ope;
 	char o1[3];

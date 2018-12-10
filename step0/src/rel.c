@@ -42,7 +42,7 @@ ListeG inserer(void* e, ListeG L){
 	}
 	return L;
 }
-
+/*------------------------fonction pour libérer la mémoire---------------------------------*/
 void libererInstruction(ListeG* L){
 	if(listeVide(*L))
 		return;
@@ -127,6 +127,7 @@ void libererdico(Dico d[], int taille){
 		}
 	}
 }
+/*------------------------------------------------------------------------------------*/
 
 void associerReg(ListeG Inst,registres tableau[32],int ligne){
 	int nb=((Instruction*)(Inst->pval))->nbop;
@@ -134,6 +135,28 @@ void associerReg(ListeG Inst,registres tableau[32],int ligne){
 	for(i=0; i<nb;i++){
 		if(((Instruction*)(Inst->pval))->op[i].categorie==REGISTRE)
 			registre(((Instruction*)(Inst->pval))->op[i].lexeme,tableau,ligne);
+		else if (((Instruction*)(Inst->pval))->op[i].categorie==BASE_OF){
+			char* token = ((Instruction*)(Inst->pval))->op[i].lexeme;
+			int j=0;
+			while(*token!='('){
+				token++;
+				j+=1;
+			}
+			token++;
+			int k=0;
+			while(token[k]!=')')
+				k+=1;
+			char* reg;
+			reg = strndup(token,k);
+			registre(reg,tableau,ligne);
+			char nouveaux[250];
+			strncpy(nouveaux,((Instruction*)(Inst->pval))->op[i].lexeme,j+1);
+			strcat(nouveaux,reg);
+			strcat(nouveaux,")");
+			free(((Instruction*)(Inst->pval))->op[i].lexeme);
+			((Instruction*)(Inst->pval))->op[i].lexeme=strdup(nouveaux);
+		}
+			
 	}
 }
 
