@@ -118,6 +118,79 @@ int nombre_bits_variable(int operande)
     return compteur;
 }
 
+
+/******************************************Fonction pour separer les operandes de type offset(base)******************************************************************/
+
+char* get_operandes_offsetbase(){
+
+    char* start = NULL;
+    char* end = NULL;
+    int count_x = 1;
+
+	while ((*start!='\0' && isblank(*start) )){
+		start++;
+    	}
+
+        end = start;	
+
+
+    switch(*start){
+
+        case(isdigit(*start)||isxdigit(*start)):
+            if ((*start='x'||*start='X') && count_x = 1){
+                count_x = 0;            
+                end++;
+            }
+            else if ((*start='x'||*start='X') && count_x = 0)
+                printf("Format d'offset invalid, plus d'un character x dans la definition hexadecimal");
+            
+            else
+                end++;
+        
+        break;
+
+        case(isalnum(*start)):
+            
+            if (count_x = 1 && *start = '$'){
+                count_x = 0;
+                end++;
+            }
+            else if (count_x = 0 && *start = '$')
+                printf("Format de base invalid, plus d'un character $");
+            
+            else 
+                end++; 
+
+        break;
+
+        default:
+            if (*end = '(' || *end = ')'){
+                token_size = end-start;
+                if (token_size > 0){
+                    *token = calloc(token_size+1,sizeof(*start));
+                    strncpy(*token,start,token_size);
+                    (*token)[token_size] = '\0';
+                    return end;
+                } 
+            }
+            end++;            
+
+    }
+
+
+    /*compute size : if zero there is no more token to extract*/ 	
+    	token_size=end-start;
+    	if (token_size>0){
+		*token 	= calloc(token_size+1,sizeof(*start));
+		strncpy(*token,start,token_size);
+		(*token)[token_size]='\0';       
+		return end;
+    	} 
+    	return NULL;
+
+}
+
+
 /****************************************************************************************************************************************/
 
 /*typedef enum {INIT, COMMENTAIRE, SYMBOLE, DIRECTIVE, REGISTRE,  DEUX_POINTS, VIRGULE, SAUT_DE_LIGNE, HEXA_DEBUT, OCTATE, DECIMAL_ZEROS, DECIMAL, TERM, HEXA, CITATION,PARENTHESE} etat;*/
@@ -129,6 +202,7 @@ int nombre_bits_variable(int operande)
 int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[60]){
 	enum {INIT_OP, NOMBRE_ENTIER, REGISTRE_OP, OFFSET_BASE, SYMBOLE_OP};
 
+    
 	char* instr_nom;	
 	char* dummy_op;
 	int state = INIT;
