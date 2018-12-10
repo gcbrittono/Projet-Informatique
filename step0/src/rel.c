@@ -121,7 +121,7 @@ int nombre_bits_variable(int operande)
 
 /******************************************Fonction pour separer les operandes de type offset(base)******************************************************************/
 
-char* get_operandes_offsetbase(){
+char* get_operandes_offsetbase(char* offset, char* base){
 
     char* start = NULL;
     char* end = NULL;
@@ -138,7 +138,9 @@ char* get_operandes_offsetbase(){
 
         case(isdigit(*start)||isxdigit(*start)):
             if ((*start='x'||*start='X') && count_x = 1){
-                count_x = 0;            
+                count_x = 0;  
+                *offset = *start;
+                offset++;          
                 end++;
             }
             else if ((*start='x'||*start='X') && count_x = 0)
@@ -153,6 +155,8 @@ char* get_operandes_offsetbase(){
             
             if (count_x = 1 && *start = '$'){
                 count_x = 0;
+                *base = *start;
+                 base++;
                 end++;
             }
             else if (count_x = 0 && *start = '$')
@@ -202,7 +206,10 @@ char* get_operandes_offsetbase(){
 int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[60]){
 	enum {INIT_OP, NOMBRE_ENTIER, REGISTRE_OP, OFFSET_BASE, SYMBOLE_OP};
 
+    char* offset_bas;
+    char* base_bas;
     
+
 	char* instr_nom;	
 	char* dummy_op;
 	int state = INIT;
@@ -244,19 +251,23 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 			state = REGISTRE_OP;
 	        break;
 
+/*****************************************************************************************************************************************/
+/***************************************************************case nombre entier********************************************************/
+/*****************************************************************************************************************************************/
+
 	    case NOMBRE_ENTIER:
-		if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)/******************** entier signe Immediat***************************/
-		{			
-			if(strcmp(hashTable[index].type_operande[pos_operande],"imm")==0)
+        if(strcmp(hashTable[index].type_operande[pos_operande],"imm")==0)/******************** entier signe Immediat***************************/
+        {			
+           if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)			
 				return 1;
 			else 
 				return 0;	
 		};	
 /*****************************************************************************************************************************************/		
 
-		else if (atoi(lexeme)>0 && atoi(lexeme)<31)/*****************************entier non signe sa*****************************/
+		else if(strcmp(hashTable[index].type_operande[pos_operande],"sa")==0)/*****************************entier non signe sa*****************************/
 		{	
-			if(strcmp(hashTable[index].type_operande[pos_operande],"sa")==0)
+			if (atoi(lexeme)>0 && atoi(lexeme)<31)
 				return 1;		
 			else 
 				return 0;
@@ -265,9 +276,9 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 	        break;
 /****************************************************************************************************************************************/		
 		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
-		else if (atoi(lexeme)%4 == 0)/*****************************Relatif rel ***********************************/
+		else if(strcmp(hashTable[index].type_operande[pos_operande],"rel")==0)/*****************************Relatif rel ***********************************/
 		{	
-			if(strcmp(hashTable[index].type_operande[pos_operande],"rel")==0)
+			if (atoi(lexeme)%4 == 0)
 				return 1;		
 			else 
 				return 0;
@@ -277,9 +288,9 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 /*****************************************************************************************************************************************/
 
 		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
-		else if (atoi(lexeme)%4 == 0)/*****************************Relatif abs *****************************/
+		else if(strcmp(hashTable[index].type_operande[pos_operande],"abs")==0)/*****************************Relatif abs *****************************/
 		{	
-			if(strcmp(hashTable[index].type_operande[pos_operande],"abs")==0)
+			if (atoi(lexeme)%4 == 0)
 				return 1;		
 			else 
 				return 0;
@@ -292,9 +303,9 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 
 
 	    case REGISTRE_OP:
-		if (atoi(lexeme)>0 && atoi(lexeme)<31) /*registre  reg*/
+		if(strcmp(hashTable[index].type_operande[pos_operande],"reg")==0) /*registre  reg*/
 		{
-			if(strcmp(hashTable[index].type_operande[pos_operande],"reg")==0)
+			if (atoi(lexeme)>0 && atoi(lexeme)<31)
 				return 1;
 			else 
 				return 0;
@@ -305,12 +316,40 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 
 	        break;
 
+
+
+
+
 	    case OFFSET_BASE:
-		if (atoi(lexeme)>0 && atoi(lexeme)<31) /*registre*/ 
+
+
+        while( (current_address= get_operandes_offsetbase(offset_bas, base_bas)) != NULL){
+            char* c=token;
+
+        }
+
+
+while (*c!='\0'){
+        if (*c=='('){
+            s = OFFSET
+        else if(*c == ')')
+            s = BASE
+
+        }
+		c++;
+ 	} 
+
+
+/*****************************************************************************************************************************************/
+
+
+
+
+		if(strcmp(hashTable[index].type_operande[pos_operande],"bas")==0) /*registre*/ 
 		{	
-			if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)/* entier signe Immediat*/
+			if (atoi(base_bas)>0 && atoi(base_bas)<31)
 	        	{
-				if(strcmp(hashTable[index].type_operande[pos_operande],"bas")==0)
+				if (atoi(offset_bas)>SHRT_MIN && atoi(offset_bas)<SHRT_MAX)/* entier signe Immediat*/
 					return 1;
 			}
 
