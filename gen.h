@@ -39,15 +39,15 @@ typedef struct {
 	char type;
 	int nbop;
 	char* type_op[3];
-	long code;
+	int code;
 } dico_bin;
 
-/*unsigned int swap (unsigned int code);
+unsigned int swap (unsigned int code);
 
 void chargeDico(dico_bin tab[], int taille);
 
 void gen(ListeG Inst, dico_bin tab[], int tailledico);
 
-void genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico);*/
+void genInstruction(inst_poly* bin, ListeG Inst, dico_bin tab[], int tailledico);
 
 #endif

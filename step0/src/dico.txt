@@ -6,7 +6,7 @@ div R 2 rs rt 011010
 and R 3 rd rs rt 100100
 or R 3 rd rs rt 100101
 xor R 3 rd rs rt 100110
-rotr R 3 rd rt sa 1 000010
+rotr R 3 rd rt sa 000010
 sll R 3 rd rs sa 000000
 srl R 3 rd rs sa 000010
 slt R 3 rd rs rt 101010

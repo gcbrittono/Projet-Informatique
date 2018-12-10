@@ -131,7 +131,16 @@ printf("\nAffichage section SYMBOLE\n");
 		}while (D!=Symb);
 	}
 
-
+	printf("\nAffichage section TEXT avant relocation\n");
+	if(listeVide(Inst))
+		printf("la section TEXT est vide");
+	else{
+		ListeG A=Inst;
+		do{
+			afficherInst((Instruction*)(A->suiv->pval) );
+			A=A->suiv;
+		}while (A!=Inst);
+	}
 
 /*---------------relocation---------------------------------*/
 ListeG RelocInst=NULL;
@@ -183,7 +192,7 @@ printf("\nAffichage section relocation data après relocation\n");
 
 dico_bin tab[25];
 chargeDico(tab,25);
-
+gen(Inst, tab, 25);
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);
     /* ---------------- Free memory and terminate -------------------*/
@@ -197,4 +206,3 @@ chargeDico(tab,25);
 
     exit( EXIT_SUCCESS );
 }
-
