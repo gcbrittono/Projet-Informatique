@@ -189,12 +189,12 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
     /*definition de machine aux etats*/
     	switch(S){
         	case INIT:
-            		if(G->categorie == DIRECTIVE) 
-				S = DONNE;
-            		else if(G->categorie == SYMBOLE) 
-				S = DEBUT;
-			else if(G->categorie== COMMENTAIRE)
-				G=G->suiv;
+            if(G->categorie == DIRECTIVE)
+							S = DONNE;
+          	else if(G->categorie == SYMBOLE)
+							S = DEBUT;
+						else if(G->categorie== COMMENTAIRE)
+							G=G->suiv;
 			else{
 				WARNING_MSG("erreur la ligne ne peut pas débuter par ce caractère ligne %d", G->ligne);
 				G=G->suiv;
@@ -274,7 +274,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 							((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 							dec_data+=1;
 						}
-					}	
+					}
 					else{
 						WARNING_MSG("erreur l'opérande n'est pas du bon type pour la directive byte ligne %d",G->ligne);
 						*erreur =1;
@@ -283,7 +283,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else{
 						WARNING_MSG("erreur d'alternance opérandes et virgules ligne %d",G->ligne);
 						*erreur =1;
-					}	
+					}
 					G=G->suiv;
 				}
 			}
@@ -425,11 +425,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 							G=G->suiv;
 							*erreur =1;
 					}
-			}			
+			}
 			S=INIT;
             		break;
 
-        	case DEBUT: 
+        	case DEBUT:
             		if(G->suiv->categorie==DEUX_POINTS)
 				S = ETIQUETTE;
             		else if(Sect==TEXT)
@@ -447,7 +447,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			k=0;
 			ListeG test=*Symb;
 			if (!listeVide(*Symb)){
-				do{	
+				do{
 					test=test->suiv;
 					if( strcmp(G->lexeme,((Symbole*)(test->pval))->lexeme)==0){
 						WARNING_MSG("erreur l'étiquette existe deja ligne %d",G->ligne);
@@ -477,7 +477,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 							}
 						break;
 				}
-			}	
+			}
 			G=G->suiv->suiv;
 			S=INIT;
             		break;
@@ -557,15 +557,18 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			}
 
 			S=INIT;
-            	break;  
-    	}     
+            	break;
+    	}
 	}while(G!=F->suiv);
-
+/*printf("%s\n",G->lexeme);
+printf("%s\n",F->lexeme);
+printf("%p\n",G);
+printf("%p\n",F);*/
 }
 
 
-void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur){ 
-	
+void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur){
+
 	FILE* dictionnaire;
 
 	dictionnaire = fopen("src/dictionnaire_instruction.txt","r");
@@ -573,7 +576,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 		ERROR_MSG("le dictionnaire n'a pas été ouvert");
 	}
 	int nombreInstruc;
-	fscanf(dictionnaire, "%d",&nombreInstruc);    
+	fscanf(dictionnaire, "%d",&nombreInstruc);
 	if(nombreInstruc == EOF) ERROR_MSG("le dictionnaire est vide");
 	Dico hashTable[60];
 	int index;
@@ -587,7 +590,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 	int k=0;
 	for (i=0;i<60;i++)
 		hashTable[i].col=-1;
-	for(i=0; i<nombreInstruc; i++){	
+	for(i=0; i<nombreInstruc; i++){
         	fscanf(dictionnaire, "%s %c %d", instruc, &ty, &ope);
 		index = funHash(instruc,nombreInstruc);
 		if(hashTable[index].col==-1){
@@ -612,9 +615,8 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 		}
 	}
 	fclose(dictionnaire);
-	
-	machine_a_etat_gram (F, Inst, Symb, Do1, Do2, hashTable, nombreInstruc, erreur);
 
+	machine_a_etat_gram (F, Inst, Symb, Do1, Do2, hashTable, nombreInstruc, erreur);
 	libererdico(hashTable, nombreInstruc);
 
 }

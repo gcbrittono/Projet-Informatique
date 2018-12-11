@@ -48,16 +48,17 @@ FILE* inst;
 
 }
 
-void genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
-	int i=0;
+int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
+	int i=-1;
 	int k;
 	int cas;
-	while((i<tailledico) && (strcmp(((Instruction*)(Inst->pval))->nom,tab[i].instruction)!=0)){
-	i+=1;
-	}
+	printf("\ninstruction %s\n",((Instruction*)(Inst->pval))->nom);
+	do{
+			i+=1;
+	}while((i<tailledico) && (strcmp(((Instruction*)(Inst->pval))->nom,tab[i].instruction)!=0));
     if(i==tailledico)
     	ERROR_MSG("erreur l'instruction n'est pas dans le dico");
-	switch(((Instruction*)(Inst->pval))->type_inst){
+	switch(tab[i].type){
 		case 'R'  :
 			cas=1;
 			bin->r_inst.rd=00000;
@@ -83,26 +84,57 @@ void genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
 			bin->i_inst.rt =00000;
 			bin->i_inst.rs =00000;
 			bin->i_inst.opcode =tab[i].code;
+			/*for(k=0;k<tab[i].nbop;k++){
+				else if (strcmp(tab[i]->type_op[k],"rt")==0)
+					bin.i_inst.rt =((Instruction*)(Inst->pval))->op[k];
+				else if (strcmp(tab[i]->type_op[k],"rs")==0)
+					bin.i_inst.rs =((Instruction*)(Inst->pval))->op[k];
+				else if (strcmp(tab[i]->type_op[k],"im")==0)
+					bin.i_inst.imm =((Instruction*)(Inst->pval))->op[k];
+			}*/
 			break;
 
 		case 'J'  :
 			cas=3;
 			bin->j_inst.targ =00000000000000000000000000;
 			bin->j_inst.opcode = tab[i].code;
+			/*
+					bin.j_inst.targ =((Instruction*)(Inst->pval))->op[0];
+			}*/
 			break;
 	}
+	return cas;
 }
 
 void gen(ListeG Inst, dico_bin tab[], int tailledico){
 	inst_poly instr;
 	unsigned int instruB;
+	if(!listeVide(Inst)){
 	ListeG F=Inst->suiv;
+	int cas;
 		do{
-			genInstruction(&instr, Inst, tab, tailledico);
-			instruB = swap(instruB);
-			/*printf("%x \n",instruB);*/
-			printf("%d ",instr.r_inst.func);
+			cas = genInstruction(&instr, F, tab, tailledico);
+			if(cas==1){
+				printf("instruction R\n");
+
+				instruB = ((0xFC000000 & (instr.r_inst.opcode << 26)) |((instr.r_inst.rs << 21)& 0x03E00000) | ((instr.r_inst.rt << 16)& 0x001F0000) | ((instr.r_inst.rd << 11)& 0x0000F800)| ((instr.r_inst.sa << 6)& 0x000007C0) | ((instr.r_inst.func) & 0x0000003F));
+				instruB = swap(instruB);
+			}
+			else if(cas==2){
+				printf("instruction I\n");
+
+				instruB = ((0xFC000000 & (instr.i_inst.opcode << 26)) |((instr.i_inst.rs << 21)& 0x03E00000) | ((instr.i_inst.rt << 16)& 0x001F0000) | ((instr.i_inst.imm)& 0x0000FFFF));
+				instruB = swap(instruB);
+			}
+			else if(cas==3){
+				printf("instruction J\n");
+
+				instruB = ((0xFC000000 & (instr.j_inst.opcode << 26)) |((instr.j_inst.targ << 21)& 0x03FFFFFF) );
+				instruB = swap(instruB);
+			}
+			printf("%x \n",instruB);
 			F=F->suiv;
 		}while (F!=Inst->suiv);
+	}
 
 }
