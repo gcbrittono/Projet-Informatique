@@ -10,8 +10,8 @@ rotr R 3 rd rt sa 000010
 sll R 3 rd rs sa 000000
 srl R 3 rd rs sa 000010
 slt R 3 rd rs rt 101010
-lw I 3 rt of rs 100011
-sw I 3 rt of rs 101011
+lw I 2 rt ofrs 100011
+sw I 2 rt ofrs 101011
 lui I 2 rt im 001111
 mfhi R 1 010000
 mflo R 1 rd 010010

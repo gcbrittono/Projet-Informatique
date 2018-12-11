@@ -453,6 +453,57 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 	libererregistre(tab, 32);
 }
 
+/*-------------------------------------------------------------------GB---------------------------------------------------------*/
 
+void extraction_des_operandes(Instruction* inst, Dico table){
+	int i;
+	for(i=0;i<inst->nbop;i++){
+		switch (inst->op[i].categorie){
+			case REGISTRE:
+				if(strcmp(table.type_op[i],"Reg")!=0)
+					ERROR_MSG("l'opérande ne doit pas être un registre ligne %d",inst->ligne);
+				break;
+			case DECIMAL:
+				if(strcmp(table.type_op[i],"Imm")==0)
+				else if(strcmp(table.type_op[i],"sa")==0)
+				else if(strcmp(table.type_op[i],"Rel")==0)
+				else if(strcmp(table.type_op[i],"Abs")==0)
+				else
+					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
+				break;
+			case OCTATE:
+				if(strcmp(table.type_op[i],"Imm")==0)
+				else if(strcmp(table.type_op[i],"sa")==0)
+				else if(strcmp(table.type_op[i],"Rel")==0)
+				else if(strcmp(table.type_op[i],"Abs")==0)
+				else
+					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
+				break;
+			case HEXA:
+				if(strcmp(table.type_op[i],"Imm")==0)
+				else if(strcmp(table.type_op[i],"sa")==0)
+				else if(strcmp(table.type_op[i],"Rel")==0)
+				else if(strcmp(table.type_op[i],"Abs")==0)
+				else
+				break;
+			case BASE_OF:
+				if(strcmp(table.type_op[i],"Bas")==0)
+				else
+					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
+				break;
+			case SYMBOLE:
+				if(strcmp(table.type_op[i],"Imm")==0)
+				else if(strcmp(table.type_op[i],"sa")==0)/*à vérifier*/
+				else if(strcmp(table.type_op[i],"Rel")==0)
+				else if(strcmp(table.type_op[i],"Abs")==0)
+				else
+					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
+				break;
+			default:
+				ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
+		}
 
+	}
+}
+	
 
