@@ -500,9 +500,9 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
 			hashTable[index].col=-2;
-			hashTable[index].type_operande[0]=type_hash[0];
-			hashTable[index].type_operande[1]=type_hash[1];
-			hashTable[index].type_operande[2]=type_hash[2];
+			hashTable[index].typeO[0]=type_hash[0];
+			hashTable[index].typeO[1]=type_hash[1];
+			hashTable[index].typeO[2]=type_hash[2];
 		}
 		else if(hashTable[index].col==-2) {
 			hashTable[index].col=50+j;
@@ -512,9 +512,9 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2){
 			hashTable[index].symbole=strdup(instruc);
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
-			hashTable[index].type_operande[0]=type_hash[0];
-			hashTable[index].type_operande[1]=type_hash[1];
-			hashTable[index].type_operande[2]=type_hash[2];
+			hashTable[index].typeO[0]=type_hash[0];
+			hashTable[index].typeO[1]=type_hash[1];
+			hashTable[index].typeO[2]=type_hash[2];
 		}
 	}
 	fclose(dictionnaire);

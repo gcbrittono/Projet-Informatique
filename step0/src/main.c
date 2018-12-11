@@ -139,7 +139,7 @@ printf("\nAffichage section SYMBOLE\n");
 
 
 /*---------------relocation---------------------------------*/
-rel(Inst);
+/*rel(Inst);
 	printf("\nAffichage section TEXT après relocation\n");
 	if(listeVide(Inst))
 		printf("la section TEXT est vide");
@@ -149,7 +149,7 @@ rel(Inst);
 			afficherInst((Instruction*)(A->suiv->pval) );
 			A=A->suiv;
 		}while (A!=Inst);
-	}
+	}*/
 
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);

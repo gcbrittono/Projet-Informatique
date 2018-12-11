@@ -125,8 +125,9 @@ long hex_to_long(char* hex)
 
 /******************************************Fonction pour separer les operandes de type offset(base)******************************************************************/
 
-char* get_operandes_offsetbase(char* offset, char* base){  /* La fonction a comment entrées des pointeurs pour stocker les valeurs trouvé lors de l'analyse*/
+char* get_operandes_offsetbase(char* offset, char* base,char** token){  /* La fonction a comment entrées des pointeurs pour stocker les valeurs trouvé lors de l'analyse*/
 
+    int token_size = 0;
     char* start = 0;
     char* end = NULL;
     int count_x = 1;
@@ -138,41 +139,41 @@ char* get_operandes_offsetbase(char* offset, char* base){  /* La fonction a comm
         end = start;	
 
 
-    switch(*start){
+    
 
-        case(isdigit(*start)||isxdigit(*start)):
-            if ((*start='x'||*start='X') && count_x = 1){
+        if(isdigit(*start)||isxdigit(*start)){
+            if ((*start=='x'||*start=='X') && count_x == 1){
                 count_x = 0;  
                 *offset = *start;
                 offset++;          
                 end++;
             }
-            else if ((*start='x'||*start='X') && count_x = 0)
+            else if ((*start=='x'||*start=='X') && count_x == 0)
                 printf("Format d'offset invalid, plus d'un character x dans la definition hexadecimal");
             
             else
                 end++;
         
-        break;
+        }
 
-        case(isalnum(*start)):
+        else if(isalnum(*start)){
             
-            if (count_x = 1 && *start = '$'){
+            if (count_x == 1 && *start == '$'){
                 count_x = 0;
                 *base = *start;
                  base++;
                 end++;
             }
-            else if (count_x = 0 && *start = '$')
+            else if (count_x == 0 && *start == '$')
                 printf("Format de base invalid, plus d'un character $");
             
             else 
                 end++; 
 
-        break;
+        }
 
-        default:
-            if (*end = '(' || *end = ')'){
+        else{
+            if (*end =='(' || *end ==  ')'){
                 token_size = end-start;
                 if (token_size > 0){
                     *token = calloc(token_size+1,sizeof(*start));
@@ -182,7 +183,7 @@ char* get_operandes_offsetbase(char* offset, char* base){  /* La fonction a comm
                 } 
             }
             end++;            
-
+	
     }
 
 
@@ -207,16 +208,17 @@ char* get_operandes_offsetbase(char* offset, char* base){  /* La fonction a comm
 /******** Machine a etats pour la verification des operandes*****/
 /****************************************************************/
 
-int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[60]){
+int extraction_des_operandes(Instruction* inst, int pos_operande, Dico hashTable[60]){
 	enum {INIT_OP, NOMBRE_ENTIER, REGISTRE_OP, OFFSET_BASE, SYMBOLE_OP};
-
+	
+    char* token;
     char* offset_bas;
     char* base_bas;
     
-
+	char* lexeme;
 	char* instr_nom;	
 	char* dummy_op;
-	int state = INIT;
+	int state = INIT_OP;
 	int index;
 	int nombreInstruc;
 
@@ -233,25 +235,25 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 
 
 	etat inst_categorie;
-	type_operande typeofoperande;
+	/*type_operande*/char* typeofoperande;
 
-	intsr_nom = inst->nom;
-	dummy_op = inst->op[pos_operand]->lexeme;
-	inst_categorie = inst->op[pos_operande]->categorie;
-	typeofoperande = inst->op[pos_operande]->type;
+	instr_nom = inst->nom;
+	dummy_op = inst->op[pos_operande].lexeme;
+	inst_categorie = inst->op[pos_operande].categorie;
+	typeofoperande = inst->op[pos_operande].type;
 	
 	index = funHash(instr_nom,nombreInstruc);
 
 	switch (state)
 ​	{
 	    case INIT_OP:
-		if(ints_categorie = SYMBOLE)
+		if(inst_categorie = SYMBOLE)
 			state = SYMBOLE_OP;
-		else if (ints_categorie = BASE_OF)
+		else if (inst_categorie = BASE_OF)
 			state = OFFSET_BASE;
-		else if(ints_categorie = DECIMAL)
+		else if(inst_categorie = DECIMAL)
 			state = NOMBRE_ENTIER;
-		else if(ints_categorie = REGISTRE)
+		else if(inst_categorie = REGISTRE)
 			state = REGISTRE_OP;
 	        break;
 
@@ -259,53 +261,54 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 /***************************************************************case nombre entier********************************************************/
 /*****************************************************************************************************************************************/
 
-	    case NOMBRE_ENTIER:
-        if(strcmp(hashTable[index].type_operande[pos_operande],"imm")==0)/******************** entier signe Immediat***************************/
-        {			
-           if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)			
-				return 1;
-			else 
-				return 0;	
-		};	
+	case NOMBRE_ENTIER:
+	        if(strcmp(hashTable[index].typeO[pos_operande],"imm")==0)/******************** entier signe Immediat***************************/
+	        {			
+				if (atoi(lexeme)>SHRT_MIN && atoi(lexeme)<SHRT_MAX)			
+					return 1;
+				else 
+					return 0;	
+		}	
 /*****************************************************************************************************************************************/		
 
-		else if(strcmp(hashTable[index].type_operande[pos_operande],"sa")==0)/*****************************entier non signe sa*****************************/
+		else if(strcmp(hashTable[index].typeO[pos_operande],"sa")==0)/*****************************entier non signe sa*****************************/
 		{	
 			if (atoi(lexeme)>0 && atoi(lexeme)<31)
 				return 1;		
 			else 
 				return 0;
-		};
+		}
 
-	        break;
+	
+
 /****************************************************************************************************************************************/		
-		else if(strcmp(hashTable[index].type_operande[pos_operande],"rel")==0)/*****************************Relatif rel ***********************************/
+		else if(strcmp(hashTable[index].typeO[pos_operande],"rel_op")==0)/*****************************Relatif rel ***********************************/
 		{	if ((hex_to_long(lexeme)<=65535)&&(atoi(lexeme)%4 == 0))
 				return 1;		
 			else 
 				return 0;
-		};
+		}
 
-	        break;
+	       
 /*****************************************************************************************************************************************/
 
 		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
-		else if(strcmp(hashTable[index].type_operande[pos_operande],"abs")==0)/*****************************Relatif abs *****************************/
+		else if(strcmp(hashTable[index].typeO[pos_operande],"abs_op")==0)/*****************************Relatif abs *****************************/
 		{	
 			if ((atoi(lexeme)%4 == 0)&&(hex_to_long(lexeme)<=268435455))
 				return 1;		
 			else 
 				return 0;
-		};
+		}
 
-	        break;
+	break;
 
 
 
 
 
 	    case REGISTRE_OP:
-		if(strcmp(hashTable[index].type_operande[pos_operande],"reg")==0) /*registre  reg*/
+		if(strcmp(hashTable[index].typeO[pos_operande],"reg")==0) /*registre  reg*/
 		{
 			if (atoi(lexeme)>0 && atoi(lexeme)<31)
 				return 1;
@@ -313,7 +316,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 				return 0;
 
 
-		}; 
+		} 
 
 
 	        break;
@@ -325,29 +328,12 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 	    case OFFSET_BASE:
 
 
-        while( (current_address= get_operandes_offsetbase(offset_bas, base_bas)) != NULL){
-            char* c=token;
-
-        }
-
-
-while (*c!='\0'){
-        if (*c=='('){
-            s = OFFSET
-        else if(*c == ')')
-            s = BASE
-
-        }
-		c++;
- 	} 
-
-
 /*****************************************************************************************************************************************/
 
 
 
 
-		if(strcmp(hashTable[index].type_operande[pos_operande],"bas")==0) /*registre*/ 
+		if(strcmp(hashTable[index].typeO[pos_operande],"bas")==0) /*registre*/ 
 		{	
 			if (atoi(base_bas)>0 && atoi(base_bas)<31)
 	        	{
