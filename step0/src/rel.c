@@ -105,25 +105,29 @@ void rel(ListeG Instruct){
 
 
 
-/**********fONCTION UTILISÉ POUR COMPTER LE NOMBRE DE BITS*******************************************************************************/
-int nombre_bits_variable(int operande)
+/**********Fonction pour convertir les operandes hexa en decimal*******************************************************************************/
+long hex_to_long(char* hex)
 {
-    int i = operande;
-    int compteur = 0;
-    while(i > 0)
-    {
-        i >>= 1;
-        compteur++;
-    }
-    return compteur;
+	long num = (long)strtol(hex, NULL, 16);
+	return num;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 /******************************************Fonction pour separer les operandes de type offset(base)******************************************************************/
 
-char* get_operandes_offsetbase(char* offset, char* base){
+char* get_operandes_offsetbase(char* offset, char* base){  /* La fonction a comment entrées des pointeurs pour stocker les valeurs trouvé lors de l'analyse*/
 
-    char* start = NULL;
+    char* start = 0;
     char* end = NULL;
     int count_x = 1;
 
@@ -275,10 +279,8 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 
 	        break;
 /****************************************************************************************************************************************/		
-		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
 		else if(strcmp(hashTable[index].type_operande[pos_operande],"rel")==0)/*****************************Relatif rel ***********************************/
-		{	
-			if (atoi(lexeme)%4 == 0)
+		{	if ((hex_to_long(lexeme)<=65535)&&(atoi(lexeme)%4 == 0))
 				return 1;		
 			else 
 				return 0;
@@ -290,7 +292,7 @@ int extraction_des_operandes(Instruction* inst, int pos_operand, Dico hashTable[
 		/*J'ai du mal a faire la liaison entre les nombre des bits et l'operande****/
 		else if(strcmp(hashTable[index].type_operande[pos_operande],"abs")==0)/*****************************Relatif abs *****************************/
 		{	
-			if (atoi(lexeme)%4 == 0)
+			if ((atoi(lexeme)%4 == 0)&&(hex_to_long(lexeme)<=268435455))
 				return 1;		
 			else 
 				return 0;
