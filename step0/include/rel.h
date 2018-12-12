@@ -3,40 +3,6 @@
 
 
 #include <stdio.h>
-<<<<<<< HEAD
-#include "lex.h"
-#include "gram.h"
-
-
-
-typedef enum {R_MIPS_32=2, R_MIPS_26=4, R_MIPS_HI16=5,
-R_MIPS_LO16=6} mode_rel;
-
-typedef struct table_relocation {
-	char* nom_section;
-	unsigned int addr_relative;
-    mode_rel mode_relocation;
-    struct table_relocation* pointeur; 
-}table_relocation;
-
-
-
-
-/*Fonction pour trouver un symbole et l'ajouté au tableu de relocation*/
-table_relocation  symbole_find(Symbole* symb);
-
-/*Fonction pour trouver un instruction et l'ajouté au tableu de relocation*/
-table_relocation  instruction_find(Instruction* inst);
-
-ListeG* trouver_pseudoinstruction(/*Instruction* inst*/ File listeInstr,Dico tableau[],int dec_text, int position);
-
-
-
-
-
-
-#endif
-=======
 #include <lex.h>
 #include <gram.h>
 
@@ -54,7 +20,45 @@ void associerReg(ListeG Inst,registres tableau[32],int ligne);
 
 void chargeRegistre(registres tab[32]);
 
-void rel(ListeG Instruct);
+void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst);
+
+void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData);
+
+Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb);
+
+void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, ListeG* RelocData);
+
+/*-----------------------relocation--------------------*/
+
+typedef enum {R_MIPS_32=2, R_MIPS_26=4, R_MIPS_HI16=5,
+R_MIPS_LO16=6} mode_rel;
+
+typedef struct table_relocation {
+	/*char* nom_section;*/
+	Section sect;
+	unsigned int addr_relative;
+	mode_rel mode_relocation;
+	Symbole* pointeur; 
+}table_relocation;
+
+table_relocation*  symbole_find(ListeG L, Symbole* symb, int i /*entier qui indique si data ou text*/);
+
+void remplacer_instr(ListeG listeInstr, char* nom_instr_final, int nombop_instr_final, char type_instr_final, char* ope[], etat typop[]);
+
+void pseudoInstruction( ListeG* instr);
+
+void libererInstruction(ListeG* L);
+
+void libererDo1(ListeG* L);
+
+void libererDo2(ListeG* L);
+
+void libererSymbole(ListeG* L);
+
+void libererFile(File* L);
+
+void libererregistre(registres tab[], int taille);
+
+void libererdico(Dico d[], int taille);
 
 #endif 
->>>>>>> bbe9c41c8b1e9ad56cc24e8a67a13b4a5a51970c

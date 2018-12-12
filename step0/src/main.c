@@ -14,6 +14,8 @@
 #include <notify.h>
 #include <lex.h>
 #include <gram.h>
+#include <rel.h>
+#include <gen.h>
 
 /**
  * @param exec Name of executable.
@@ -72,45 +74,28 @@ int main ( int argc, char *argv[] ) {
 
 
     /* ---------------- do the lexical analysis -------------------*/
+	int erreur=0;
 	File F=creerFile();
-    lex_load_file( file, &nlines,&F );
+    lex_load_file( file, &nlines,&F, &erreur);
 
 	File P=F;
 	do{
 		afficherFile(P);
 		P=P->suiv;
 	}while (P!=F);
-	
+	if (erreur == 1)
+		ERROR_MSG("Erreur dans l'annalyse lexicale");
 	/* ---------------- do the gramatical analysis -------------------*/
 	ListeG Inst=NULL;
 	ListeG Symb=NULL;
 	ListeG Do1=NULL;
 	ListeG Do2=NULL;
 
-/*<<<<<<< HEAD*/
-	gramAnalyse(F, Inst, Symb, Do1, Do2);
-	printf("ok");
-	/*ListeG A=Inst;*/
-	/*do{
-		afficherListe(A->pval);
-		A=A->suiv;
-	}while (A!=Inst->suiv);*/
-	
-/*=======*/
-	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2);
+	gramAnalyse(F, &Inst, &Symb, &Do1, &Do2,&erreur);
 
-/* ---------------- Affichage instructions -------------------*/
-/*	printf("\nAffichage section TEXT\n");
-	if(listeVide(Inst))
-		printf("la section TEXT est vide");
-	else{
-		ListeG A=Inst;
-		do{
-			afficherInst((Instruction*)(A->suiv->pval) );
-			A=A->suiv;
-		}while (A!=Inst);
-	}
-*/
+	if (erreur == 1)
+		ERROR_MSG("Erreur dans l'annalyse grammaticale");
+
 /* ---------------- Affichage données data -------------------*/
 printf("\nAffichage section DATA\n");
 	if(listeVide(Do1))
@@ -136,7 +121,7 @@ printf("\nAffichage section BSS\n");
 
 /* ---------------- Affichage etiquettes-------------------*/
 printf("\nAffichage section SYMBOLE\n");
-	if(listeVide(Inst))
+	if(listeVide(Symb))
 		printf("la section SYMBOLE est vide");
 	else{
 		ListeG D=Symb;
@@ -146,16 +131,7 @@ printf("\nAffichage section SYMBOLE\n");
 		}while (D!=Symb);
 	}
 
-<<<<<<< HEAD
-/*>>>>>>> be9a190610ace8a07f99d60d20d6de9a29f85e0e*/
-    DEBUG_MSG("source code got %d lines",nlines);
-=======
->>>>>>> bbe9c41c8b1e9ad56cc24e8a67a13b4a5a51970c
-
-
-/*---------------relocation---------------------------------*/
-rel(Inst);
-	printf("\nAffichage section TEXT après relocation\n");
+	printf("\nAffichage section TEXT avant relocation\n");
 	if(listeVide(Inst))
 		printf("la section TEXT est vide");
 	else{
@@ -166,12 +142,67 @@ rel(Inst);
 		}while (A!=Inst);
 	}
 
+/*---------------relocation---------------------------------*/
+ListeG RelocInst=NULL;
+ListeG RelocData=NULL;
+rel(&Inst, Do1, &Symb, &RelocInst, &RelocData);
+	printf("\nAffichage section TEXT après relocation\n");
+	if(listeVide(Inst))
+		printf("la section TEXT est vide");
+	else{
+		ListeG A=Inst;
+		do{
+			afficherInst((Instruction*)(A->suiv->pval) );
+			A=A->suiv;
+		}while (A!=Inst);
+	}
+printf("\nAffichage section SYMBOLE après relocation\n");
+	if(listeVide(Symb))
+		printf("la section SYMBOLE est vide");
+	else{
+		ListeG D=Symb;
+		do{
+			afficherSymb((Symbole*)(D->suiv->pval) );
+			D=D->suiv;
+		}while (D!=Symb);
+	}
+
+printf("\nAffichage section relocation text après relocation\n");
+	if(listeVide(RelocInst))
+		printf("la section de relocation text est vide");
+	else{
+		ListeG E=RelocInst->suiv;
+		do{
+			printf("- %d -",((table_relocation*)(E->pval))->addr_relative);
+			E=E->suiv;
+		}while (E!=RelocInst->suiv);
+	}
+
+printf("\nAffichage section relocation data après relocation\n");
+	if(listeVide(RelocData))
+		printf("la section de relocation data est vide");
+	else{
+		ListeG F=RelocData->suiv;
+		do{
+			printf("- %d -",((table_relocation*)(F->pval))->addr_relative);
+			F=F->suiv;
+		}while (F!=RelocData->suiv);
+	}
+/*--------------------------Generation----------------------------------*/
+
+dico_bin tab[25];
+chargeDico(tab,25);
+gen(Inst, tab, 25);
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);
     /* ---------------- Free memory and terminate -------------------*/
+	libererInstruction(&Inst);
 
+	libererSymbole(&Symb);
+	libererDo2(&Do2);
+	libererDo1(&Do1);
+	libererFile(&F);
     /* TODO free everything properly*/
 
     exit( EXIT_SUCCESS );
 }
-

@@ -1,0 +1,25 @@
+add R 3 rd rs rt 100000
+addi I 3 rt rs im 001000
+sub R 3 rd rs rt 100010
+mult R 2 rs rt 011000
+div R 2 rs rt 011010
+and R 3 rd rs rt 100100
+or R 3 rd rs rt 100101
+xor R 3 rd rs rt 100110
+rotr R 3 rd rt sa 000010
+sll R 3 rd rs sa 000000
+srl R 3 rd rs sa 000010
+slt R 3 rd rs rt 101010
+lw I 3 rt of rs 100011
+sw I 3 rt of rs 101011
+lui I 2 rt im 001111
+mfhi R 1 010000
+mflo R 1 rd 010010
+beq I 3 rs rt of 000100
+bne I 3 rs rt of 000101
+bgtz I 2 rs of 000111
+blez I 2 rs of 000110
+j J 1 ta 000010
+jal J 1 ta 000011
+jr R 1 rs 001000
+nop R 0 000000

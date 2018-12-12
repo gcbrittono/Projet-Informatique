@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 
-typedef enum {INIT, COMMENTAIRE, SYMBOLE, DIRECTIVE, REGISTRE,  DEUX_POINTS, VIRGULE, SAUT_DE_LIGNE, HEXA_DEBUT, OCTATE, DECIMAL_ZEROS, DECIMAL, TERM, HEXA, CITATION,PARENTHESE,SIGNE} etat;
+typedef enum {INIT, COMMENTAIRE, SYMBOLE, DIRECTIVE, REGISTRE,  DEUX_POINTS, VIRGULE, SAUT_DE_LIGNE, HEXA_DEBUT, OCTATE, DECIMAL_ZEROS, DECIMAL, TERM, HEXA, CITATION,PARENTHESE,SIGNE,BASE_OF, BASE} etat;
 
 typedef struct lex {
 	char* lexeme;
@@ -40,8 +40,8 @@ File enfiler(lex_t L, File F);
 /*fonction qui affiche le contenue de la file :  le lexeme, sa ligne et sa catégorie*/
 void afficherFile(File F);
 
-void	lex_read_line( char *, int , File *F);
-void	lex_load_file( char *, unsigned int *, File *F );
+void lex_read_line( char *line, int nline, File* F, int* erreur);
+void	lex_load_file( char *, unsigned int *, File *F, int* erreur);
 char* 	getNextToken( char** , char* );
 
 #endif /* _LEX_H_ */

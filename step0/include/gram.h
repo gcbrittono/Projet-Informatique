@@ -10,7 +10,7 @@
 /*typedef enum {INIT, COMMENTAIRE, SYMBOLE, DIRECTIVE, REGISTRE,  DEUX_POINTS, VIRGULE, SAUT_DE_LIGNE, HEXA_DEBUT, OCTATE, DECIMAL_ZEROS, DECIMAL, TERM, HEXA, CITATION,PARENTHESE} etat;*/
 
 /*Définition de macro etats*/
-typedef enum {DATA, BSS, TEXT} Section;
+typedef enum {DATA, BSS, TEXT, UNDEFINED} Section;
 
 /*Definition de structure pour charger les donees de l'instruction dans un dictionnaire, il y a les donnes de symbole de l'instruction, type soit r,i ou j et le nombre des operands*/
 typedef struct DictionnaireIn{ 
@@ -18,17 +18,20 @@ typedef struct DictionnaireIn{
     	char type;
     	int operands;
 	int col;
+	char* type_op[3];
 } Dico;
 
 /*Liste circulaire Générique*/
-typedef struct el{
+struct el{
 	void* pval;
 	struct el* suiv;
-} *ListeG;
+};
+typedef struct el * ListeG;
 
 typedef struct {
 	char* lexeme;
 	etat categorie;
+	char* typeadr;
 } Operande;
 
 typedef struct {
@@ -49,7 +52,10 @@ typedef union {
 	unsigned char octet;
 } Opedonnee;
 	
-	
+typedef struct {
+	Opedonnee valeur;
+	etat type;
+} OpeD;
 
 typedef struct {
 	char* lexeme;
@@ -112,10 +118,11 @@ int funHash(char* str, int taille);
 
 void toLowerStr(char *str);
 
-void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille);
+void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille, int* erreur);
 
-void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2);
+void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur);
 
 /*File defiler*/
 
 #endif 
+

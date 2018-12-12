@@ -7,7 +7,7 @@
 
 
     Lw $t0 , lunchtime
-    LW $6, -200($7)
+    LW $6, -200($t3)
     ADDI $t1,$zero,8
 boucle:
     BEQ $t0 , $t1 , byebye
@@ -16,7 +16,7 @@ boucle:
     J boucle 
     NOP
 byebye:
-    JAL vite(viteauru)
+    JAL vite
 
 .data
 lunchtime: 
@@ -24,9 +24,13 @@ lunchtime:
 .text
 	adDi $t1 , $t1 , -0XEABCF
 	addi $t1 , $t1 , 02546
+	sw $t0 , lunchtime
+	sw $t0 , bonjour
+	move $t3 ,$t2
+
 .data
-boucle:
-    .word menu
+boucles:
+    .word menu, 12
     .asciiz "ils disent : \"au ru!\""
 .bss 
 menu:
