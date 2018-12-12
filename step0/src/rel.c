@@ -156,7 +156,7 @@ void associerReg(ListeG Inst,registres tableau[32],int ligne){
 			free(((Instruction*)(Inst->pval))->op[i].lexeme);
 			((Instruction*)(Inst->pval))->op[i].lexeme=strdup(nouveaux);
 		}
-			
+
 	}
 }
 
@@ -165,7 +165,7 @@ FILE* re;
 
 	re = fopen("src/registre.txt","r");
 	if (re == NULL){
-		ERROR_MSG("le dictionnaire de registre n'a pas été ouvert "); 
+		ERROR_MSG("le dictionnaire de registre n'a pas été ouvert ");
 		return; /*gestion erreurs*/
 	}
 	char reg1[10]/*=malloc(sizeof(*reg1))*/;
@@ -189,7 +189,7 @@ table_relocation*  symbole_find(ListeG L, Symbole* symb, int i /*entier qui indi
 		tab_rel->sect=DATA;
             	tab_rel->addr_relative = ((Donnee1*)(L->pval))->decalage;/*symb->decalage*/
             	tab_rel->mode_relocation = 2;
-		tab_rel->pointeur = symb;		
+		tab_rel->pointeur = symb;
 	}
 	else if (i==1){
         /*else if(symb->sect==TEXT){*/
@@ -199,24 +199,24 @@ table_relocation*  symbole_find(ListeG L, Symbole* symb, int i /*entier qui indi
 		switch(((Instruction*)(L->pval))->type_inst){
 			case 'R'  :
       				tab_rel->mode_relocation = 2;
-      				break; 
-	
+      				break;
+
    			case 'I'  :
       				tab_rel->mode_relocation = 5&6;
-      				break; 
+      				break;
 
    			case 'J'  :
       				tab_rel->mode_relocation = 4;
-      				break; 
+      				break;
 
-  
-   			default : 
+
+   			default :
         			tab_rel->mode_relocation = 2;
 		}
             	/*tab_rel.mode_relocation = 2; */ /*Je ne suis pas sur si ca marcherá dans le cas text*/
 		tab_rel->pointeur = symb;
-	}	
-	return tab_rel;   
+	}
+	return tab_rel;
 }
 
 
@@ -235,7 +235,7 @@ void remplacer_instr(ListeG listeInstr, char* nom_instr_final, int nombop_instr_
 	}
 }
 
-/*Fonction qui remplace les pseudo instructions 
+/*Fonction qui remplace les pseudo instructions
 la fonction décale le pointeur de la liste lorsqu'elle ajoute une instruction*/
 void pseudoInstruction( ListeG* instr){
 	char* o[3];
@@ -280,7 +280,7 @@ void pseudoInstruction( ListeG* instr){
 		remplacer_instr(*instr, "lui", 2, 'I',o, typop);
 		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Imm");
-		
+
 /*faire la relocation ici pour les deux instructions*/
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"nop")==0){
@@ -340,8 +340,8 @@ void pseudoInstruction( ListeG* instr){
 		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->pval))->op[2].typeadr=strdup("Reg");
-		
-		
+
+
 /*faire la relocation ici*/
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"neg")==0){
@@ -365,12 +365,12 @@ void pseudoInstruction( ListeG* instr){
 	do{
 		if(strcmp(nom,((Symbole*)((A)->pval))->lexeme))
 			vrai=1;
-	}while(A!=(*Symb)->suiv && vrai==0); 
+	}while(A!=(*Symb)->suiv && vrai==0);
 	if (vrai==0){
 		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED ,0),*Symb);
 		A=*Symb;
 	}
-	return A;	
+	return A;
 }*/
 
 void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
@@ -392,7 +392,7 @@ void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData){
 			*RelocData=ajouterQueue(symbole_find(Data, trouverSymbole(((OpeD*)(P->pval))->valeur.as_et, ligne, Symb), 0), *RelocData);
 			printf("parfait");
 		}
-		P=P->suiv;	
+		P=P->suiv;
 	}
 }
 
@@ -419,6 +419,20 @@ Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 	}
 }
 
+Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb){
+	if(listeVide(*Symb)){
+		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED, 0), *Symb);
+		return (Symbole*)((*Symb)->suiv->pval);
+	}
+	else{
+		ListeG D=*Symb;
+		do{
+			if(strcmp(nom,((Symbole*)((D)->suiv->pval))->lexeme)==0)
+				return (Symbole*)((D)->suiv->pval);
+			D=D->suiv;
+		}while (D!=*Symb);
+	}
+}
 
 void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, ListeG* RelocData){
 	registres tab[32];
@@ -429,7 +443,7 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 		int vrai=0;/* passe à 1 si l'opérande est une pseudo instruction qui sera remplacé par deux instruction*/
 		/*modifie les registre en chiffre*/
 		associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
-		/*insertion des pseudo instruction*/	
+		/*insertion des pseudo instruction*/
 		if(strcmp(((Instruction*)(A->suiv->pval))->nom,"nop")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || (strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"neg")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0 && ((Instruction*)(A->suiv->pval))->op[2].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"move")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"li")==0 )/*vérifier les conditions*/{
 			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
 			vrai=1;
@@ -455,17 +469,19 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 
 /*-------------------------------------------------------------------GB---------------------------------------------------------*/
 
-void extraction_des_operandes(Instruction* inst, Dico table){
+void extraction_des_operandes(Instruction* inst, ListeG Symb, Dico table){
 	int i;
 	for(i=0;i<inst->nbop;i++){
 		switch (inst->op[i].categorie){
 			case REGISTRE:
 				if(strcmp(table.type_op[i],"Reg")!=0)
-					ERROR_MSG("l'opérande ne doit pas être un registre ligne %d",inst->ligne);
+					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
 				break;
 			case DECIMAL:
 				if(strcmp(table.type_op[i],"Imm")==0)
 				else if(strcmp(table.type_op[i],"sa")==0)
+					if((atoi(inst->nom)<0) || (atoi(inst->nom)>31))
+						ERROR_MSG("l'opérande sa n'a pas une valeur admissible ligne %d ",inst->ligne)
 				else if(strcmp(table.type_op[i],"Rel")==0)
 				else if(strcmp(table.type_op[i],"Abs")==0)
 				else
@@ -485,6 +501,7 @@ void extraction_des_operandes(Instruction* inst, Dico table){
 				else if(strcmp(table.type_op[i],"Rel")==0)
 				else if(strcmp(table.type_op[i],"Abs")==0)
 				else
+					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
 				break;
 			case BASE_OF:
 				if(strcmp(table.type_op[i],"Bas")==0)
@@ -492,11 +509,13 @@ void extraction_des_operandes(Instruction* inst, Dico table){
 					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
 				break;
 			case SYMBOLE:
-				if(strcmp(table.type_op[i],"Imm")==0)
-				else if(strcmp(table.type_op[i],"sa")==0)/*à vérifier*/
+				if((strcmp(table.type_op[i],"Imm")==0) || (strcmp(table.type_op[i],"Abs")==0));
 				else if(strcmp(table.type_op[i],"Rel")==0)
-				else if(strcmp(table.type_op[i],"Abs")==0)
-				else
+					ListeG pointeur = Symb;
+					do{
+						pointeur=pointeur->suiv;
+					}while(pointeur!=Symb->suiv && strcmp(((Symbole*)(pointeur->pval))->lexeme,)!=0);
+				else/*erreur pour les sa, reg et bas*/
 					ERROR_MSG("mauvais type d'opérande pour l'instruction %d",inst->ligne);
 				break;
 			default:
@@ -505,5 +524,3 @@ void extraction_des_operandes(Instruction* inst, Dico table){
 
 	}
 }
-	
-
