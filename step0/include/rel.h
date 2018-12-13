@@ -49,6 +49,8 @@ void pseudoInstruction( ListeG* instr);
 
 Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb);
 
+void extraction_des_operandes(Instruction* inst, ListeG Symb);
+
 void libererInstruction(ListeG* L);
 
 void libererDo1(ListeG* L);

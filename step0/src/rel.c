@@ -420,8 +420,9 @@ Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 }
 
 Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb){
+	printf("mot :%s\n",nom);
 	if(listeVide(*Symb)){
-		ERROR_MSG("Cette étiquette n'est pas définit ligne %d",ligne);
+		ERROR_MSG("Cette étiquette n'est pas définit1 ligne %d",ligne);
 	}
 	else{
 		ListeG D=*Symb;
@@ -429,8 +430,9 @@ Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb){
 			if(strcmp(nom,((Symbole*)((D)->suiv->pval))->lexeme)==0)
 				return (Symbole*)((D)->suiv->pval);
 			D=D->suiv;
+			printf("%s\n",((Symbole*)((D)->suiv->pval))->lexeme);
 		}while (D!=*Symb);
-		ERROR_MSG("Cette étiquette n'est pas définit ligne %d",ligne);
+		ERROR_MSG("Cette étiquette n'est pas définit2 ligne %d",ligne);
 	}
 }
 
@@ -443,6 +445,7 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 		int vrai=0;/* passe à 1 si l'opérande est une pseudo instruction qui sera remplacé par deux instruction*/
 		/*modifie les registre en chiffre*/
 		associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
+		extraction_des_operandes(((Instruction*)(A->suiv->pval)), *Etiquette);
 		/*insertion des pseudo instruction*/
 		if(strcmp(((Instruction*)(A->suiv->pval))->nom,"nop")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || (strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"neg")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0 && ((Instruction*)(A->suiv->pval))->op[2].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"move")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"li")==0 )/*vérifier les conditions*/{
 			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
@@ -477,7 +480,7 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 				break;
 			case DECIMAL:
 				if(strcmp(inst->op[i].typeadr,"Imm")==0)
-					if((atoi(inst->op[i].lexeme)<-32768 || (atoi(inst->op[i].lexeme)>32767)
+					if((atoi(inst->op[i].lexeme)<-32768) || (atoi(inst->op[i].lexeme)>32767))
 						ERROR_MSG("l'opérande sa n'a pas une valeur admissible, ligne %d ",inst->ligne);
 				else if(strcmp(inst->op[i].typeadr,"sa")==0)
 					if((atoi(inst->op[i].lexeme)<0) || (atoi(inst->op[i].lexeme)>31))
@@ -487,7 +490,7 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 						ERROR_MSG("l'opérande rel n'a pas une valeur admissible, ligne %d ",inst->ligne);
 					free(inst->op[i].lexeme);
 					char* rel;
-					sprintf(rel,%ld,(strtol(inst->op[i].lexeme,NULL,10)>>2));
+					sprintf(rel,"%ld",(strtol(inst->op[i].lexeme,NULL,10)>>2));
 					inst->op[i].lexeme=strdup(rel);
 				}
 				else if(strcmp(inst->op[i].typeadr,"Abs")==0){
@@ -495,7 +498,7 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 						ERROR_MSG("l'opérande abs n'a pas une valeur admissible, ligne %d ",inst->ligne);
 					free(inst->op[i].lexeme);
 					char* abs;
-					sprintf(abs,%ld,(strtol(inst->op[i].lexeme,NULL,10)>>2));
+					sprintf(abs,"%ld",(strtol(inst->op[i].lexeme,NULL,10)>>2));
 					inst->op[i].lexeme=strdup(abs);
 				}
 				else
@@ -513,7 +516,7 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 						ERROR_MSG("l'opérande rel n'a pas une valeur admissible, ligne %d ",inst->ligne);
 					free(inst->op[i].lexeme);
 					char* rel;
-					sprintf(rel,%ld,(strtol(inst->op[i].lexeme,NULL,8)>>2));
+					sprintf(rel,"%ld",(strtol(inst->op[i].lexeme,NULL,8)>>2));
 					inst->op[i].lexeme=strdup(rel);
 				}	
 				else if(strcmp(inst->op[i].typeadr,"Abs")==0){
@@ -521,7 +524,7 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 						ERROR_MSG("l'opérande abs n'a pas une valeur admissible, ligne %d ",inst->ligne);
 					free(inst->op[i].lexeme);
 					char* abs;
-					sprintf(abs,%ld,(strtol(inst->op[i].lexeme,NULL,16)>>2));
+					sprintf(abs,"%ld",(strtol(inst->op[i].lexeme,NULL,16)>>2));
 					inst->op[i].lexeme=strdup(abs);
 				}
 				else
@@ -540,7 +543,7 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 						ERROR_MSG("l'opérande rel n'a pas une valeur admissible, ligne %d ",inst->ligne);
 					free(inst->op[i].lexeme);
 					char* rel;
-					sprintf(rel,%ld,(strtol(inst->op[i].lexeme,NULL,16)>>2));
+					sprintf(rel,"%ld",(strtol(inst->op[i].lexeme,NULL,16)>>2));
 					inst->op[i].lexeme=strdup(rel);
 				}
 				else if(strcmp(inst->op[i].typeadr,"Abs")==0){
@@ -548,7 +551,7 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 						ERROR_MSG("l'opérande abs n'a pas une valeur admissible, ligne %d ",inst->ligne);
 					free(inst->op[i].lexeme);
 					char* abs;
-					sprintf(abs,%ld,(strtol(inst->op[i].lexeme,NULL,16)>>2));
+					sprintf(abs,"%ld",(strtol(inst->op[i].lexeme,NULL,16)>>2));
 					inst->op[i].lexeme=strdup(abs);
 				}
 				else
@@ -560,15 +563,15 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 					ERROR_MSG("mauvais type d'opérande pour l'instruction ligne %d",inst->ligne);
 				break;
 			case SYMBOLE:
-				if((strcmp(inst->op[i].typeadr,"Imm")==0) || (strcmp(table.type_op[i],"Abs")==0));
+				if((strcmp(inst->op[i].typeadr,"Imm")==0) || (strcmp(inst->op[i].typeadr,"Abs")==0) || (strcmp(inst->op[i].typeadr,"Bas")==0));/*ces cas sont pour la relocation, les seul deux Bas correspondes aux pseudo instruction -> reloc*/
 				else if(strcmp(inst->op[i].typeadr,"Rel")==0){
 					Symbole* pointeur = NULL;
 					pointeur = trouverSymbole2(inst->nom, inst->ligne, &Symb);
-					if(pointeur->Section==TEXT){
+					if(pointeur->sect==TEXT){
 						int saut=(pointeur->decalage)-(inst->decalage);
 						free(inst->op[i].lexeme);
 						char* nouv;
-						sprintf(nouv,%d,saut);
+						sprintf(nouv,"%d",saut);
 						inst->op[i].lexeme=strdup(nouv);
 					}
 					else
