@@ -13,16 +13,16 @@ boucle:
     BEQ $t0 , $t1 , byebye
     NOP
     addi $t1 , $t1 , 1
-    J boucle 
+    J boucle
     NOP
 byebye:
     JAL vite
 
 .data
-lunchtime: 
+lunchtime:
     .word 12
 .text
-	adDi $t1 , $t1 , -0XEABCF
+	adDi $t1 , $t1 , -0XEAB
 	addi $t1 , $t1 , 02546
 	sw $t0 , lunchtime
 	sw $t0 , bonjour
@@ -32,7 +32,6 @@ lunchtime:
 boucles:
     .word menu, 12
     .asciiz "ils disent : \"au ru!\""
-.bss 
+.bss
 menu:
     .space 24
-
