@@ -1,9 +1,17 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 
+
+#include <global.h>
+#include <notify.h>
+#include <lex.h>
+#include <gram.h>
+#include <rel.h>
+#include <gen.h>
 #include <pelf/pelf.h>
 #include <pelf/section.h>
-
 
 
 /*Fonction pour stocker les donnes liées aux table de relocation*/
