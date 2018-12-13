@@ -47,6 +47,8 @@ void remplacer_instr(ListeG listeInstr, char* nom_instr_final, int nombop_instr_
 
 void pseudoInstruction( ListeG* instr);
 
+Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb);
+
 void libererInstruction(ListeG* L);
 
 void libererDo1(ListeG* L);

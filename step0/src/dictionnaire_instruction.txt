@@ -7,23 +7,23 @@ div R 2 Reg Reg
 and R 3 Reg Reg Reg
 or R 3 Reg Reg Reg
 xor R 3 Reg Reg Reg
-rotr I 3 Reg Reg sa
-sll I 3 Reg Reg sa
-srl I 3 Reg Reg sa
+rotr R 3 Reg Reg sa
+sll R 3 Reg Reg sa
+srl R 3 Reg Reg sa
 slt R 3 Reg Reg Reg
 lw I 2 Reg Bas
 sw I 2 Reg Bas
 lui I 2 Reg Imm
-mfhi J 1 Reg
-mflo J 1 Reg
+mfhi R 1 Reg
+mflo R 1 Reg
 beq I 3 Reg Reg Rel
 bne I 3 Reg Reg Rel
 bgtz I 2 Reg Rel
 blez I 2 Reg Rel
 j J 1 Abs
 jal J 1 Abs 
-jr J 1 Reg
-nop P 0
+jr R 1 Reg
+nop R 0
 move R 2 Reg Reg
 neg R 2 Reg Reg
 li I 2 Reg Imm
