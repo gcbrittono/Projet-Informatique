@@ -74,8 +74,8 @@ int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
 					bin->r_inst.rt =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
 				else if (strcmp(tab[i].type_op[k],"rs")==0)
 					bin->r_inst.rs =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
-				/*else if (strcmp(tab[i].type_op[k],"sa")==0)
-					bin->r_inst.sa =atoi(((Instruction*)(Inst->pval))->op[k].lexeme); //avérifier*/
+				else if (strcmp(tab[i].type_op[k],"sa")==0)
+					bin->r_inst.sa =strtol(((Instruction*)(Inst->pval))->op[k].lexeme,NULL,0);
 			}
 			break;
 
@@ -86,12 +86,36 @@ int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
 			bin->i_inst.rs =00000;
 			bin->i_inst.opcode =tab[i].code;
 			for(k=0;k<tab[i].nbop;k++){
+				if(strcmp(((Instruction*)(Inst->pval))->nom,"lw")==0 || strcmp(((Instruction*)(Inst->pval))->nom,"sw")==0){
+					if (strcmp(tab[i].type_op[k],"rt")==0)
+						bin->i_inst.rt =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
+					else if(strcmp(tab[i].type_op[k],"ofrs")==0){
+						char* token = ((Instruction*)(Inst->pval))->op[i].lexeme;
+						int j=0;
+						while(*token!='('){
+							token++;
+							j+=1;
+						}
+						token++;
+						int k=0;
+						while(token[k]!=')')
+							k+=1;
+						char* reg;
+						char* offset;
+						reg = strndup(token,k);
+						offset = strndup(((Instruction*)(Inst->pval))->op[i].lexeme,j);
+						bin->i_inst.rs =atoi(reg+1);
+						bin->i_inst.imm =strtol(offset,NULL,0);
+					}
+				}
+				else{
 				if (strcmp(tab[i].type_op[k],"rt")==0)
 					bin->i_inst.rt =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
 				else if (strcmp(tab[i].type_op[k],"rs")==0)
-					bin->i_inst.rs =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1); /*attention les bases offset ne sont pas pris en comptes*/
-				/*else if (strcmp(tab[i].type_op[k],"im")==0)
-					bin->i_inst.imm =((Instruction*)(Inst->pval))->op[k].lexeme;*/
+					bin->i_inst.rs =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
+				else if (strcmp(tab[i].type_op[k],"im")==0)
+					bin->i_inst.imm =strtol(((Instruction*)(Inst->pval))->op[k].lexeme,NULL,0);
+				}
 			}
 			break;
 
@@ -99,9 +123,7 @@ int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
 			cas=3;
 			bin->j_inst.targ =00000000000000000000000000;
 			bin->j_inst.opcode = tab[i].code;
-			/*
-					bin->j_inst.targ =((Instruction*)(Inst->pval))->op[0].lexeme;
-			}*/
+			bin->j_inst.targ =strtol(((Instruction*)(Inst->pval))->op[0].lexeme,NULL,0);
 			break;
 	}
 	return cas;
