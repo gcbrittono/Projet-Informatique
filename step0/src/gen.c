@@ -48,6 +48,22 @@ FILE* inst;
 
 }
 
+void gendata(unsigned int* binairedata,ListeG Data){
+	if(listeVide(Data))
+		printf("la section DATA est vide");
+		return 0;
+	else{
+		ListeG o=Data->op;
+		Opedonnee d;
+		int i=0;
+		for(i=0;i<=L->nbop-1;i++){
+			d=((OpeD*)(o->pval))->valeur;
+			printf(" %u / ",d);
+			o=o->suiv;
+
+	}
+}
+
 int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
 	int i=-1;
 	int k;
@@ -85,14 +101,15 @@ int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
 			bin->i_inst.rt =00000;
 			bin->i_inst.rs =00000;
 			bin->i_inst.opcode =tab[i].code;
-			for(k=0;k<tab[i].nbop;k++){
-				if(strcmp(((Instruction*)(Inst->pval))->nom,"lw")==0 || strcmp(((Instruction*)(Inst->pval))->nom,"sw")==0){
+		/*	if(strcmp(((Instruction*)(Inst->pval))->nom,"lw")==0 || strcmp(((Instruction*)(Inst->pval))->nom,"sw")==0){
+				for(k=0;k<tab[i].nbop;k++){
 					if (strcmp(tab[i].type_op[k],"rt")==0)
 						bin->i_inst.rt =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
 					else if(strcmp(tab[i].type_op[k],"ofrs")==0){
 						char* token = ((Instruction*)(Inst->pval))->op[i].lexeme;
 						int j=0;
 						while(*token!='('){
+							printf("bien");
 							token++;
 							j+=1;
 						}
@@ -108,15 +125,18 @@ int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
 						bin->i_inst.imm =strtol(offset,NULL,0);
 					}
 				}
-				else{
-				if (strcmp(tab[i].type_op[k],"rt")==0)
-					bin->i_inst.rt =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
-				else if (strcmp(tab[i].type_op[k],"rs")==0)
-					bin->i_inst.rs =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
-				else if (strcmp(tab[i].type_op[k],"im")==0)
-					bin->i_inst.imm =strtol(((Instruction*)(Inst->pval))->op[k].lexeme,NULL,0);
-				}
 			}
+			else{*/
+				for(k=0;k<tab[i].nbop;k++){/*ne fonctionne pas pour les I base offset*/
+					if (strcmp(tab[i].type_op[k],"rt")==0)
+						bin->i_inst.rt =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
+					else if (strcmp(tab[i].type_op[k],"rs")==0)
+						bin->i_inst.rs =atoi(((Instruction*)(Inst->pval))->op[k].lexeme+1);
+					else if (strcmp(tab[i].type_op[k],"im")==0)
+						bin->i_inst.imm =strtol(((Instruction*)(Inst->pval))->op[k].lexeme,NULL,0);
+
+				}
+		/*	}*/
 			break;
 
 		case 'J'  :

@@ -149,13 +149,14 @@ void associerReg(ListeG Inst,registres tableau[32],int ligne){
 			char* reg;
 			reg = strndup(token,k);
 			registre(reg,tableau,ligne);
-			char* nouveaux;
-			nouveaux=strndup(((Instruction*)(Inst->pval))->op[i].lexeme,j);
+			char* nouveaux=malloc((k+j+3)*sizeof(char));
+			strncpy(nouveaux,((Instruction*)(Inst->pval))->op[i].lexeme,j);
 			strcat(nouveaux,"(");
 			strcat(nouveaux,reg);
 			strcat(nouveaux,")");
 			free(((Instruction*)(Inst->pval))->op[i].lexeme);
-			((Instruction*)(Inst->pval))->op[i].lexeme=strdup(nouveaux);
+			((Instruction*)(Inst->pval))->op[i].lexeme=malloc((k+j+3)*sizeof(char));
+			strcpy(((Instruction*)(Inst->pval))->op[i].lexeme,nouveaux);
 		}
 
 	}
@@ -385,7 +386,7 @@ void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 					free(((Instruction*)(Inst->pval))->op[i].lexeme);
 					char vale1[250];
 					sprintf(vale1,"%d",m);
-					((Instruction*)(Inst->pval))->op[i].lexeme=strdup(vale1);	
+					((Instruction*)(Inst->pval))->op[i].lexeme=strdup(vale1);
 				}
 				else{
 				int mot1 = trouverSymbole2(((Instruction*)(Inst->pval))->op[i].lexeme,ligne, Symb)->decalage & 0x0000FFFF;
