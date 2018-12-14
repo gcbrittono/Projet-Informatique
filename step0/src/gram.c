@@ -94,12 +94,15 @@ void afficherInst(Instruction* L){
 /*affiche la liste de donnée data*/
 void afficherDo1(Donnee1* L){
 	printf("Décalage %d : [ SYMBOLE ] : %s : nombre operande : %d : opérandes : ",L->decalage, L->lexeme, L->nbop);
-	ListeG o=L->op;
+	ListeG o=L->op->suiv;
 	Opedonnee d;
 	int i=0;
-	for(i=0;i<=L->nbop-1;i++){
+	for(i=0;i<L->nbop;i++){
 		d=((OpeD*)(o->pval))->valeur;
-		printf(" %u / ",d);
+		if(((OpeD*)(o->pval))->type==SYMBOLE || ((OpeD*)(o->pval))->type==CITATION)
+			printf(" %s / ",d);
+		else
+			printf(" %u / ",d);
 		o=o->suiv;
 	}
 	/*for(o;o==L->op;o=o->suiv){
@@ -189,12 +192,16 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
     /*definition de machine aux etats*/
     	switch(S){
         	case INIT:
-            if(G->categorie == DIRECTIVE)
-							S = DONNE;
-          	else if(G->categorie == SYMBOLE)
-							S = DEBUT;
-						else if(G->categorie== COMMENTAIRE)
-							G=G->suiv;
+            		if(G->categorie == DIRECTIVE){
+				S = DONNE;
+				goto donnee;
+			}			
+          		else if(G->categorie == SYMBOLE){
+				S = DEBUT;
+				goto debut;
+			}
+			else if(G->categorie== COMMENTAIRE)
+				G=G->suiv;
 			else{
 				WARNING_MSG("erreur la ligne ne peut pas débuter par ce caractère ligne %d", G->ligne);
 				G=G->suiv;
@@ -202,7 +209,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			}
             		break;
 
-		case DONNE:
+		donnee :case DONNE:
             		if(strcmp(G->lexeme, ".data")==0){
 				S = INIT;
 				Sect=DATA;
@@ -220,7 +227,8 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			}
             		else if(strcmp(G->lexeme,".set")==0 && strcmp(G->suiv->lexeme,"noreorder")==0){
 				S = INIT;
-				G=G->suiv->suiv;
+				G=G->suiv;
+				G=G->suiv;
 			}
 			else if(Sect==DATA && ( strcmp(G->lexeme, ".byte")==0 || strcmp(G->lexeme, ".asciiz")==0 || strcmp(G->lexeme, ".word")==0 || strcmp(G->lexeme, ".space")==0))
 				S = DONNE_DATA;
@@ -247,11 +255,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else if ((G->suiv->suiv->ligne==((Donnee1*)((*Do1)->pval))->ligne && G->suiv->categorie==VIRGULE) || G->suiv->ligne!=((Donnee1*)((*Do1)->pval))->ligne){
-					if(((G->categorie==OCTATE) || (G->categorie==DECIMAL))){/*modifier pour les octate ne marche pas*/
-							if((atoi(G->lexeme)>-129) && (atoi(G->lexeme)<128)){
+					if((G->categorie==OCTATE) || (G->categorie==DECIMAL) || (G->categorie==HEXA)){/*modifier pour les octate ne marche pas*/
+							if((strtol(G->lexeme,NULL,0)>-129) && (strtol(G->lexeme,NULL,0)<128)){
 								((Donnee1*)((*Do1)->pval))->nbop+=1;
 								OpeD* oper=malloc(sizeof(*oper));
-								oper->valeur.word=atoi(G->lexeme);
+								oper->valeur.word=strtol(G->lexeme,NULL,0);
 								oper->type=G->categorie;
 								((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 								dec_data+=1;
@@ -261,7 +269,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 								*erreur =1;
 							}
 					}
-					else if((G->categorie==HEXA)){
+					/*else if((G->categorie==HEXA)){
 						if(strlen(G->lexeme)>4){
 							WARNING_MSG("erreur ne tient pas sur un octet ligne %d",G->ligne);
 							*erreur =1;
@@ -274,7 +282,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 							((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 							dec_data+=1;
 						}
-					}
+					}*/
 					else{
 						WARNING_MSG("erreur l'opérande n'est pas du bon type pour la directive byte ligne %d",G->ligne);
 						*erreur =1;
@@ -375,17 +383,17 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else if ((G->suiv->suiv->ligne==((Donnee1*)((*Do1)->pval))->ligne && G->suiv->categorie==VIRGULE) || G->suiv->ligne!=((Donnee1*)((*Do1)->pval))->ligne){
-						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL)){
+						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL) && (G->categorie!=HEXA)){
 							WARNING_MSG("erreur l'opérande n'est pas un chiffre pour la directive space ligne %d",G->ligne);
 							*erreur =1;
 						}
 						else{
 							((Donnee1*)((*Do1)->pval))->nbop+=1;/*a verifier si plusieurs operandes possible*/
 							OpeD* oper=malloc(sizeof(*oper));
-							oper->valeur.word=atoi(G->lexeme);
+							oper->valeur.word=strtol(G->lexeme,NULL,0);
 							oper->type=G->categorie;
 							((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
-							dec_data+=atoi(G->lexeme);
+							dec_data+=strtol(G->lexeme,NULL,0);
 						}
 						G=G->suiv;
 					}
@@ -409,14 +417,14 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else if ((G->suiv->suiv->ligne==((Donnee2*)((*Do2)->pval))->ligne && G->suiv->categorie==VIRGULE) || G->suiv->ligne!=((Donnee2*)((*Do2)->pval))->ligne){
-						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL)){
+						if((G->categorie!=OCTATE) && (G->categorie!=DECIMAL) && (G->categorie!=HEXA)){
 							*erreur =1;
 							WARNING_MSG("erreur l'opérande n'est pas un chiffre pour la directive space ligne %d",G->ligne);
 						}
 						else{
 							((Donnee2*)((*Do2)->pval))->nbop+=1;
-							((Donnee2*)((*Do2)->pval))->valeur+=atoi(G->lexeme);
-							dec_bss+=atoi(G->lexeme);
+							((Donnee2*)((*Do2)->pval))->valeur+=strtol(G->lexeme,NULL,0);
+							dec_bss+=strtol(G->lexeme,NULL,0);
 						}
 						G=G->suiv;
 					}
@@ -429,7 +437,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			S=INIT;
             		break;
 
-        	case DEBUT:
+        	debut : case DEBUT:
             		if(G->suiv->categorie==DEUX_POINTS)
 				S = ETIQUETTE;
             		else if(Sect==TEXT)

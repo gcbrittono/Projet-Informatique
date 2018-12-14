@@ -97,10 +97,11 @@ int main ( int argc, char *argv[] ) {
 		ERROR_MSG("Erreur dans l'annalyse grammaticale");
 
 /* ---------------- Affichage données data -------------------*/
-printf("\nAffichage section DATA\n");
+
 	if(listeVide(Do1))
-		printf("la section DATA est vide");
+		printf("La section DATA est vide\n");
 	else{
+		printf("\nAffichage section DATA\n");
 		ListeG B=Do1;
 		do{
 			afficherDo1((Donnee1*)(B->suiv->pval) );
@@ -108,10 +109,11 @@ printf("\nAffichage section DATA\n");
 		}while (B!=Do1);
 	}
 /* ---------------- Affichage données bss-------------------*/
-printf("\nAffichage section BSS\n");
+
 	if(listeVide(Do2))
-		printf("la section BSS est vide");
+		printf("La section BSS est vide\n");
 	else{
+		printf("\nAffichage section BSS\n");
 		ListeG C=Do2;
 		do{
 			afficherDo2((Donnee2*)(C->suiv->pval) );
@@ -120,10 +122,11 @@ printf("\nAffichage section BSS\n");
 	}
 
 /* ---------------- Affichage etiquettes-------------------*/
-printf("\nAffichage section SYMBOLE\n");
+
 	if(listeVide(Symb))
-		printf("la section SYMBOLE est vide");
+		printf("La section SYMBOLE est vide\n");
 	else{
+		printf("\nAffichage section SYMBOLE\n");
 		ListeG D=Symb;
 		do{
 			afficherSymb((Symbole*)(D->suiv->pval) );
@@ -131,10 +134,11 @@ printf("\nAffichage section SYMBOLE\n");
 		}while (D!=Symb);
 	}
 
-	printf("\nAffichage section TEXT avant relocation\n");
+	
 	if(listeVide(Inst))
-		printf("la section TEXT est vide");
+		printf("la section TEXT est vide\n");
 	else{
+		printf("\nAffichage section TEXT avant relocation\n");
 		ListeG A=Inst;
 		do{
 			afficherInst((Instruction*)(A->suiv->pval) );
@@ -146,20 +150,22 @@ printf("\nAffichage section SYMBOLE\n");
 ListeG RelocInst=NULL;
 ListeG RelocData=NULL;
 rel(&Inst, Do1, &Symb, &RelocInst, &RelocData);
-	printf("\nAffichage section TEXT après relocation\n");
+	
 	if(listeVide(Inst))
 		printf("la section TEXT est vide");
 	else{
+		printf("\nAffichage section TEXT après relocation\n");
 		ListeG A=Inst;
 		do{
 			afficherInst((Instruction*)(A->suiv->pval) );
 			A=A->suiv;
 		}while (A!=Inst);
 	}
-printf("\nAffichage section SYMBOLE après relocation\n");
+
 	if(listeVide(Symb))
-		printf("la section SYMBOLE est vide");
+		printf("la section SYMBOLE est vide\n");
 	else{
+		printf("\nAffichage section SYMBOLE après relocation\n");
 		ListeG D=Symb;
 		do{
 			afficherSymb((Symbole*)(D->suiv->pval) );
@@ -167,10 +173,11 @@ printf("\nAffichage section SYMBOLE après relocation\n");
 		}while (D!=Symb);
 	}
 
-printf("\nAffichage section relocation text après relocation\n");
+
 	if(listeVide(RelocInst))
-		printf("la section de relocation text est vide");
+		printf("la section de relocation text est vide\n");
 	else{
+		printf("\nAffichage section relocation text après relocation\n");
 		ListeG E=RelocInst->suiv;
 		do{
 			printf("- %d -",((table_relocation*)(E->pval))->addr_relative);
@@ -180,7 +187,7 @@ printf("\nAffichage section relocation text après relocation\n");
 
 printf("\nAffichage section relocation data après relocation\n");
 	if(listeVide(RelocData))
-		printf("la section de relocation data est vide");
+		printf("la section de relocation data est vide\n");
 	else{
 		ListeG F=RelocData->suiv;
 		do{
@@ -195,7 +202,7 @@ chargeDico(tab,25);
 gen(Inst, tab, 25);
 /*--------------------------------------------------------------*/
     DEBUG_MSG("source code got %d lines",nlines);
-    /* ---------------- Free memory and terminate -------------------*/
+/* ---------------- Free memory and terminate -------------------*/
 	libererInstruction(&Inst);
 
 	libererSymbole(&Symb);

@@ -48,20 +48,43 @@ FILE* inst;
 
 }
 
-void gendata(unsigned int* binairedata,ListeG Data){
-	if(listeVide(Data))
-		printf("la section DATA est vide");
-		return 0;
-	else{
-		ListeG o=Data->op;
+void gendata(unsigned int* binairedata,ListeG Data, unsigned int datatab[]){
+	
+	ListeG B=Data->suiv;
+	do{
+		ListeG o=((Donnee1*)(B->pval))->op;
 		Opedonnee d;
-		int i=0;
-		for(i=0;i<=L->nbop-1;i++){
-			d=((OpeD*)(o->pval))->valeur;
-			printf(" %u / ",d);
-			o=o->suiv;
+		int i;
+		if(strcmp(((Donnee1*)(B->pval))->lexeme, ".byte")==0){
+			for(i=0;i<((Donnee1*)(B->pval))->nbop;i++){
+				
+				o=o->suiv;
+			}
+		}
+		else if(strcmp(((Donnee1*)(B->pval))->lexeme, ".asciiz")==0){
+			for(i=0;i<((Donnee1*)(B->pval))->nbop;i++){
+				
+				o=o->suiv;
+			}
+		}
+		else if(strcmp(((Donnee1*)(B->pval))->lexeme, ".word")==0){
+			for(i=0;i<((Donnee1*)(B->pval))->nbop;i++){
+				
+				o=o->suiv;
+			}
+		}
+		else if(strcmp(((Donnee1*)(B->pval))->lexeme, ".space")==0){
+			for(i=0;i<((Donnee1*)(B->pval))->nbop;i++){
+				
+				o=o->suiv;
+			}
+		}
+			
+		B=B->suiv;
+		
+	}while (B!=Data->suiv);
+		
 
-	}
 }
 
 int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico){
