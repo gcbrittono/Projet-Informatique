@@ -149,8 +149,9 @@ void associerReg(ListeG Inst,registres tableau[32],int ligne){
 			char* reg;
 			reg = strndup(token,k);
 			registre(reg,tableau,ligne);
-			char nouveaux[250];
-			strncpy(nouveaux,((Instruction*)(Inst->pval))->op[i].lexeme,j+1);
+			char* nouveaux;
+			nouveaux=strndup(((Instruction*)(Inst->pval))->op[i].lexeme,j);
+			strcat(nouveaux,"(");
 			strcat(nouveaux,reg);
 			strcat(nouveaux,")");
 			free(((Instruction*)(Inst->pval))->op[i].lexeme);
@@ -364,18 +365,35 @@ void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
 	for(i=0; i<nb;i++){
-		if((((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE) && (strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0 /*|| strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0*/)){
-			if(strcmp(((Instruction*)(Inst->pval))->nom)!=0 && strcmp(((Instruction*)(Inst->pval))->nom)=0)
+		if((((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE) && ((strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0 || strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0))){
+			if(strcmp(((Instruction*)(Inst->pval))->nom,"lw")!=0 && strcmp(((Instruction*)(Inst->pval))->nom,"sw")!=0)
 				*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(((Instruction*)(Inst->pval))->op[i].lexeme, ligne, Symb), 1), *RelocInst);
 			else {
-				
+				char* tok = ((Instruction*)(Inst->pval))->op[i].lexeme;
+				int j=0;
+				while(*tok!='('){
+					tok++;
+					j+=1;
+				}
+				char* offset;
+				offset = strndup(((Instruction*)(Inst->pval))->op[i].lexeme,j);
+				*RelocInst=ajouterQueue(symbole_find(Inst, trouverSymbole(offset, ligne, Symb), 1), *RelocInst);
 			}
 			if(strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Imm")==0){
+				if(strcmp(((Instruction*)(Inst->pval))->nom,"lui")==0 && ((Instruction*)(Inst->pval))->op[i].categorie==SYMBOLE && (strcmp(((Instruction*)(Inst->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(Inst->suiv->pval))->nom,"sw")==0)){
+					int m = trouverSymbole2(((Instruction*)(Inst->pval))->op[i].lexeme,ligne, Symb)->decalage & 0xFFFF0000;
+					free(((Instruction*)(Inst->pval))->op[i].lexeme);
+					char vale1[250];
+					sprintf(vale1,"%d",m);
+					((Instruction*)(Inst->pval))->op[i].lexeme=strdup(vale1);	
+				}
+				else{
 				int mot1 = trouverSymbole2(((Instruction*)(Inst->pval))->op[i].lexeme,ligne, Symb)->decalage & 0x0000FFFF;
 				free(((Instruction*)(Inst->pval))->op[i].lexeme);
 				char val1[250];
 				sprintf(val1,"%d",mot1);
 				((Instruction*)(Inst->pval))->op[i].lexeme=strdup(val1);
+				}
 			}
 			else if(strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Abs")==0){
 				int mot2 = trouverSymbole2(((Instruction*)(Inst->pval))->op[i].lexeme,ligne, Symb)->decalage & 0x0FFFFFFF;
@@ -384,14 +402,26 @@ void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 				sprintf(val2,"%d",mot2);
 				((Instruction*)(Inst->pval))->op[i].lexeme=strdup(val2);
 			}
-			/*else if(strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0){
-
-				int mot3 = trouverSymbole2(,ligne, Symb)->decalage & 0x0000FFFF;
+			else if(strcmp(((Instruction*)(Inst->pval))->op[i].typeadr,"Bas")==0){
+				char* to = ((Instruction*)(Inst->pval))->op[i].lexeme;
+				int j=0;
+				while(*to!='('){
+					to++;
+					j+=1;
+				}
+				char* offsets;
+				offsets = strndup(((Instruction*)(Inst->pval))->op[i].lexeme,j);
+				int mots = trouverSymbole2(offsets,ligne, Symb)->decalage & 0x0000FFFF;
+				char* base =strdup(to);
 				free(((Instruction*)(Inst->pval))->op[i].lexeme);
-				char[250] val3;
-				sprintf(val3,"%d",mot3);
-				((Instruction*)(Inst->pval))->op[i].lexeme=strdup(val3);
-			}*/
+				char vals[250];
+				sprintf(vals,"%d",mots);
+				strcat(vals,base);
+				((Instruction*)(Inst->pval))->op[i].lexeme=strdup(vals);
+				free(offsets);
+				free(base);
+				((Instruction*)(Inst->pval))->op[i].categorie=SYMBOLE;
+			}
 		}
 	}
 }
@@ -437,7 +467,7 @@ Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 }
 
 Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb){
-	printf("mot :%s\n",nom);
+	/*printf("mot :%s\n",nom);*/
 	if(listeVide(*Symb)){
 		ERROR_MSG("Cette étiquette n'est pas définit1 ligne %d",ligne);
 	}
@@ -464,7 +494,6 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 		associerReg(A->suiv,tab,((Instruction*)(A->suiv->pval))->ligne);
 		/*vérifie que les opérandes sont bon*/
 		extraction_des_operandes(((Instruction*)(A->suiv->pval)), *Etiquette);
-		/*printf("ok---------------------------------------------\n");*/
 		/*insertion des pseudo instruction*/
 		if(strcmp(((Instruction*)(A->suiv->pval))->nom,"nop")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || (strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 && ((Instruction*)(A->suiv->pval))->op[1].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"neg")==0 || (strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0 && ((Instruction*)(A->suiv->pval))->op[2].categorie==SYMBOLE) || strcmp(((Instruction*)(A->suiv->pval))->nom,"move")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"li")==0 )/*vérifier les conditions*/{
 			if(strcmp(((Instruction*)(A->suiv->pval))->nom,"lw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"sw")==0 || strcmp(((Instruction*)(A->suiv->pval))->nom,"blt")==0)
@@ -577,7 +606,18 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 					ERROR_MSG("mauvais type d'opérande pour l'instruction ligne %d",inst->ligne);
 				break;
 			case BASE_OF:
-				if(strcmp(inst->op[i].typeadr,"Bas")==0);
+				if(strcmp(inst->op[i].typeadr,"Bas")==0){
+					char* tok1 = inst->op[i].lexeme;
+					int j=0;
+					while(*tok1!='('){
+						tok1++;
+						j+=1;
+					}
+					char* offs;
+					offs = strndup(inst->op[i].lexeme,j);
+					if(strtol(offs,NULL,0)<-32768 || strtol(offs,NULL,0)>32767)
+						ERROR_MSG("l'opérande imm n'a pas une valeur admissible, ligne %d ",inst->ligne);
+				}
 				else
 					ERROR_MSG("mauvais type d'opérande pour l'instruction ligne %d",inst->ligne);
 				break;
