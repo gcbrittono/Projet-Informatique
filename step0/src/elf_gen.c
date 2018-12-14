@@ -16,13 +16,14 @@
 
 /*Fonction pour stocker les donnes liées aux table de relocation*/
 
-void relocation_text_elf(ListeG RelocInst, section* reltext){
+void relocation_text_elf(ListeG RelocInst, section* reltext, section symtab, section shstrtab, section strtab){
 	int nombre_tables = nombres_symboles (RelocInst);
-	lf32_Rel text_reloc[nombre_tables];
+	Elf32_Rel text_reloc[nombre_tables];
+	int i;
 
-	for (int i = 0; i < nombre_tables; i++){
-		text_reloc[i].r_offset =RelocInst->addr_relative;
-		text_reloc[i].r_info=ELF32_R_INFO(elf_get_sym_index_from_name(symtab, shstrtab, strtab,strdup(RelocInst->sec)),RelocInst->mode_relocation);
+	for (0; i < nombre_tables; i++){
+		text_reloc[i].r_offset =((table_relocation*)(RelocInst->pval))->addr_relative;
+		text_reloc[i].r_info=ELF32_R_INFO(elf_get_sym_index_from_name(symtab, shstrtab, strtab,strdup(((table_relocation*)(RelocInst->pval))->sect)),((table_relocation*)(RelocInst->pval))->mode_relocation);
 	}
 	reltext  = make_rel32_section( ".rel.text", text_reloc, nombre_tables);
 
@@ -30,13 +31,13 @@ void relocation_text_elf(ListeG RelocInst, section* reltext){
 
 
 /*Fonction pour stocker les donnes liées aux table de relocation*/
-void relocation_data_elf(ListeG RelocData, section* reldata){
+void relocation_data_elf(ListeG RelocData, section* reldata, section symtab, section shstrtab, section strtab){
 	int nombre_tables = nombres_symboles (RelocData);
-	lf32_Rel data_reloc[nombre_tables];
-
-	for (int i = 0; i < nombre_tables; i++){
-	data_reloc[i].r_offset =RelocData->addr_relative;
-	data_reloc[i].r_info=ELF32_R_INFO(elf_get_sym_index_from_name(symtab, shstrtab,strtab,RelocData->sect),RelocData->mode_relocation);
+	Elf32_Rel data_reloc[nombre_tables];
+	int i;
+	for (i = 0; i < nombre_tables; i++){
+	data_reloc[i].r_offset =((table_relocation*)(RelocData->pval))->addr_relative;
+	data_reloc[i].r_info=ELF32_R_INFO(elf_get_sym_index_from_name(symtab, shstrtab,strtab,((table_relocation*)(RelocData->pval))->sect),((table_relocation*)(RelocData->pval))->mode_relocation);
 	}	
 	
 	reldata  = make_rel32_section( ".rel.data", data_reloc,nombre_tables);
@@ -47,42 +48,28 @@ void relocation_data_elf(ListeG RelocData, section* reldata){
 
 
 /*Fonction qui stocke les symboles de la liste generique dans un tableu de type Symbole*/
-Symbole* stockages_symboles (ListeG* listeSymboles){
-	int quantite_symboles = nombres_symboles (listeSymboles);
+Elf32_Sym* stockages_symboles (ListeG* listeSymboles, section strtab, section shstrtab, char* sym_char[]){
 	int i = 0;	
-	Symbole tableu_symboles[quantite_symboles];
-
+	int quantite_symboles = nombres_symboles (listeSymboles);
+	Elf32_Sym syms[quantite_symboles];
 	ListeG D = listeSymboles;
 		do{
-			tableu_symboles[i] = D;
+			syms[i].st_name = elf_get_string_offset( strtab->start, strtab->sz, sym_char[i] );
+			syms[i].st_size = 0;
+			syms[i].st_value = ((Symbole*)(D->pval))->decalage;
+			syms[i].st_info = ELF32_ST_INFO( STB_LOCAL, STT_NOTYPE );
+			syms[i].st_other = 0;
+			syms[i].st_shndx  = elf_get_string_index( shstrtab->start, shstrtab->sz, strdup(((Symbole*)(D->pval))->sect) );
+
 			D=D->suiv;
 			i++;
 		}while (D!=listeSymboles);			
 
-	return tableu_symboles;
+	return syms;
 }
 
 
 
-
-/*Fonction qui sert à remplir la table de structures des symboles*/
-Elf32_sym affichage_donnes_symboles (int nombre_symboles, section strtab, section shstrtab, ListeG* listeSymboles) {
-
-	Symboles tableu_symboles[nombre_symboles] = stockages_symboles(listeSymboles);
-
-
-	Elf32_Sym syms[nombre_symboles]= {{0}};
-	for (int i = 0; i < nombre_symboles; i++){
-		syms[i].st_name = elf_get_string_offset( strtab->start, strtab->sz, sym_char[i] );
-		syms[i].st_size = 0;
-		syms[i].st_value = tableu_symboles[i]->decalage;
-		syms[i].st_info = ELF32_ST_INFO( STB_LOCAL, STT_NOTYPE );
-		syms[i].st_other = 0;
-		syms[i].st_shndx  = elf_get_string_index( shstrtab->start, shstrtab->sz, strdup(tableu_symboles[i]->sect) );
-		}	
-	
-	return syms;
-} 
 
 
 /*fonction qui prendre un tableu des binaires provenant des sections .text ou . data et qui les ajoute aux sections text_prog data_prog*/
@@ -99,7 +86,6 @@ int nombres_symboles (ListeG* listeSymboles) {
 		int i = 0;
 		ListeG D=listeSymboles;
 		do{
-			sym_char[i] = strdup(((Symbole*)(D->pval->lexeme)));
 			D=D->suiv;
 			i++;
 		}while (D!=listeSymboles);
@@ -112,7 +98,7 @@ void affichage_donnees_symboles (char* sym_char[], ListeG* listeSymboles) {
 		int i = 0;
 		ListeG D=listeSymboles;
 		do{
-			sym_char[i] = strdup(((Symbole*)(D->pval->lexeme)));
+			sym_char[i] = strdup(((Symbole*)(D->pval))->lexeme);
 			D=D->suiv;
 			i++;
 		}while (D!=listeSymboles);
@@ -125,6 +111,8 @@ void afichage_sections_elf(int* binaires_text, int* binaires_data, ListeG* liste
 	int nombre_ligne_text = sizeof(binaires_text)/sizeof(int);
 	int nombre_ligne_data = sizeof(binaires_data)/sizeof(int);	
 	int nombre_symboles   = nombres_symboles(listeSymboles);
+
+	char * sym_char[];
 
 	/* prepare sections*/
 	section     text = NULL;
@@ -153,9 +141,9 @@ void afichage_sections_elf(int* binaires_text, int* binaires_data, ListeG* liste
 	shstrtab = make_shstrtab_section();
 
 	/*Affichage des donnés*/
-	affichage_donnees_sections (text_prog, tableu_binaires);
-	affichage_donnees_sections (data_prog, tableu_binaires);
-	affichage_donnees_symboles(sym_char[], listeSymboles);
+	affichage_donnees_sections (text_prog, binaires_text);
+	affichage_donnees_sections (data_prog, binaires_data);
+	affichage_donnees_symboles(sym_char, listeSymboles);
 
 
 
@@ -179,7 +167,9 @@ void afichage_sections_elf(int* binaires_text, int* binaires_data, ListeG* liste
 
 	strtab   = make_strtab_section( sym_char, nombre_symboles);
 
-	affichage_donnes_symboles (nombre_symboles, strtab, shstrtab, listeSymboles)
+	
+
+	Elf32_Sym  syms = stockages_symboles (listeSymboles, strtab, shstrtab, sym_char[]);
 
 	symtab   = make_symtab_section( shstrtab, strtab, syms,nombre_symboles);
 

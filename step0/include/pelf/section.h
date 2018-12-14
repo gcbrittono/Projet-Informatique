@@ -18,6 +18,8 @@ extern "C" {
 #endif
 
 
+
+
 typedef struct {
     char           *name; /**! name of the section (e.g. : .text) */
     unsigned int      sz; /**! current size of the section (in number of SECTION_CHUNK_SZ) */
@@ -29,6 +31,11 @@ void    print_section( section s );
 int     grow_section( section s, unsigned int increment );
 int     write_section( section s, unsigned char *bytes, unsigned int nbytes, unsigned int offset);
 void del_section( section s );
+
+
+
+
+
 
 #ifdef __cplusplus
 }
