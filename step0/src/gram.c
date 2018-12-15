@@ -493,10 +493,23 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
         	case INSTRUCTION_TEXT:
 			Sect=TEXT;
 			toLowerStr(G->lexeme);/*passe toutes les instructions en miniscule*/
-			int position;
+			int position=-1;
 			File H=G;
+			int l=0;
+			while(position==-1 && l<taille){
+				if(strcmp(G->lexeme,tableau[l].symbole)==0)
+					position=l;
+				l+=1;
+			}
+			if(l==-1){
+				WARNING_MSG("erreur1, l'instruction ligne %d  n'existe pas", G->ligne);
+				*erreur =1;
+				while (G->ligne==H->ligne)
+					G=G->suiv;
+				S=INIT;
+			}
 			/*printf("postion %d \n",funHash(G->lexeme, taille));*/
-			if((tableau[funHash(G->lexeme, taille)].col==-1)){
+			/*if((tableau[funHash(G->lexeme, taille)].col==-1)){
 				WARNING_MSG("erreur1, l'instruction ligne %d  n'existe pas", G->ligne);
 				*erreur =1;
 				while (G->ligne==H->ligne)
@@ -512,18 +525,18 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			}
 			else if((strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)!=0) && (tableau[funHash(G->lexeme, taille)].col>0) && (strcmp(G->lexeme,tableau[tableau[funHash(G->lexeme, taille)].col].symbole)!=0)){
 				WARNING_MSG("erreur3, l'instruction ligne %d  n'existe pas", G->ligne);
-				*erreur =1;
-				printf("%s -- ", tableau[tableau[funHash(G->lexeme, taille)].col].symbole);
-				printf("%s -- ",tableau[funHash(G->lexeme, taille)].symbole);
-				while (G->ligne==H->ligne)
+				*erreur =1;*/
+				/*printf("%s -- ", tableau[tableau[funHash(G->lexeme, taille)].col].symbole);
+				printf("%s -- ",tableau[funHash(G->lexeme, taille)].symbole);*/
+				/*while (G->ligne==H->ligne)
 					G=G->suiv;
 				S=INIT;
-			}
+			}*/
 			else{
-				if(strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)==0)
+				/*if(strcmp(G->lexeme,tableau[funHash(G->lexeme, taille)].symbole)==0)
 					position=funHash(G->lexeme, taille);
 				else
-					position=tableau[funHash(G->lexeme, taille)].col;
+					position=tableau[funHash(G->lexeme, taille)].col;*/
 				*Inst=ajouterQueue(creerInstruction(G->lexeme, G->categorie,tableau[position].operands, G->ligne, dec_text,tableau[position].type), *Inst);
 				int i=0;
 				if (strcmp(G->lexeme,"lw")==0 || strcmp(G->lexeme,"sw")==0 || strcmp(G->lexeme,"blt")==0)
@@ -554,7 +567,6 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						while (G->ligne==H->ligne)
 							G=G->suiv;
 					}
-					/*probleme alternance operande virgule*/
 				}
 				if(i<((Instruction*)((*Inst)->pval))->nbop){
 					WARNING_MSG("erreur il n'y a pas assez d'opérande à l'instruction ligne %d", ((Instruction*)((*Inst)->pval))->ligne);
@@ -586,9 +598,28 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 	int nombreInstruc;
 	fscanf(dictionnaire, "%d",&nombreInstruc);
 	if(nombreInstruc == EOF) ERROR_MSG("le dictionnaire est vide");
-	Dico hashTable[60];
+	Dico hashTable[nombreInstruc];
 	int index;
-	/*char* instruc=malloc(sizeof(*instruc));*/
+	char instruc[10];
+	char ty;
+	int ope;
+	char o1[3];
+	int i = 0;
+	int j=0;
+	int k=0;
+	for(i=0; i<nombreInstruc; i++){
+        	fscanf(dictionnaire, "%s %c %d", instruc, &ty, &ope);
+		hashTable[i].symbole=strdup(instruc);
+		hashTable[i].type=ty;
+		hashTable[i].operands=ope;
+		hashTable[i].col=-2;
+		for(k=0;k<ope;k++){
+			fscanf(dictionnaire, "%s ",o1);
+			hashTable[i].type_op[k]=strdup(o1);
+		}
+	}
+	/*Dico hashTable[60];
+	int index;
 	char instruc[10];
 	char ty;
 	int ope;
@@ -616,12 +647,12 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 			hashTable[index].type=ty;
 			hashTable[index].operands=ope;
 		}
-/*chargement du type d'adressage des registres*/
+
 		for(k=0;k<ope;k++){
 			fscanf(dictionnaire, "%s ",o1);
 			hashTable[index].type_op[k]=strdup(o1);
 		}
-	}
+	}*/
 	fclose(dictionnaire);
 
 	machine_a_etat_gram (F, Inst, Symb, Do1, Do2, hashTable, nombreInstruc, erreur);
