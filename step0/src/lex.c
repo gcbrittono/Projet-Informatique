@@ -30,7 +30,7 @@ int estVide(File L){
 	return !L;
 }
 
-/*fonction qui ajoute un maillon à la fin de la file contenant le lexeme lex, de type cat et qui est sur la ligne lig, à la liste L*/
+/*fonction qui crée un élément de la lsite*/
 lex_t creerElement(char* lex, etat cat, int lig){
 	lex_t p;
 	p.lexeme=strdup(lex);
@@ -40,6 +40,7 @@ lex_t creerElement(char* lex, etat cat, int lig){
 	return p;
 }
 
+/*fonction qui ajoute un maillon à la fin de la file contenant le lexeme lex, de type cat et qui est sur la ligne lig, à la liste L*/
 File enfiler(lex_t L, File F){
 	File A=calloc(1,sizeof(*A));
 	if (A==NULL)

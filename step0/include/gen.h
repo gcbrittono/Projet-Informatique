@@ -42,12 +42,14 @@ typedef struct {
 	int code;
 } dico_bin;
 
-unsigned int swap (unsigned int code);
+unsigned int swap (unsigned int code);/*passe le binaire en big endian*/
 
-void chargeDico(dico_bin tab[], int taille);
+void chargeDico(dico_bin tab[], int taille);/*charge le dictionnaire d'instruction qui contient le binaire*/
 
-void gen(ListeG Inst, dico_bin tab[], int tailledico);
+void gen(ListeG Inst, ListeG Data, dico_bin tab[], int tailledico, int tailletext, int tailledata, unsigned int texttab[], unsigned int datatab[]);/*fonction qui réalise la génération du binaire pour text et data (incomplète)*/
 
-int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico);
+int genInstruction(inst_poly* bin,ListeG Inst, dico_bin tab[], int tailledico);/*génère le bianire pour les instruction*/
+
+void gendata(/*unsigned int* binairedata,*/ListeG Data, unsigned int datatab[]);/*fonction pour générer le binaire du code data en fonction de la directive et le stocke dans le tablau datatab*/
 
 #endif

@@ -23,6 +23,7 @@ int listeVide(ListeG L){
 	return !L;
 }
 
+/*fonction de création des différentes structures à partir de leur contenue*/
 
 Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig,unsigned int dec , char type/*,ListeG operande*/){
 	Instruction* p=malloc(sizeof(*p));
@@ -68,6 +69,7 @@ Symbole* creerSymbole(char* lex,	etat cat, int lig, Section section ,int dec){
 	return p;
 }
 
+/*fonction de création de la liste générique*/
 ListeG ajouterQueue(void* e, ListeG L){
 	ListeG A=(ListeG)calloc(1,sizeof(struct el));
 	if (A==NULL)
@@ -105,12 +107,6 @@ void afficherDo1(Donnee1* L){
 			printf(" %u / ",d);
 		o=o->suiv;
 	}
-	/*for(o;o==L->op;o=o->suiv){
-		d=(Opedonnee*)(o->pval);
-		printf("%u ",*d);
-	}
-	d=(Opedonnee*)(o->pval);
-	printf("%u ",*d);*/
 	printf("\n---------------------------------------------------------------------------\n");
 }
 /*affichage de la liste de données bss*/
@@ -150,7 +146,7 @@ void afficherSymb(Symbole* L){
 	return t;
 }*/
 
-
+/*fonction de hachage: pas assez optimale, du coup pas utilisé par la suite*/
 int funHash(char* str, int taille){
 	char* new=strdup(str);
 	toLowerStr(new);
@@ -162,7 +158,7 @@ int funHash(char* str, int taille){
 	hash=hash%50;
 	return hash;
 }
-/*Fonction utilisée dans la fonction funHash pour convertir les character string en son equivalent minuscule*/
+/*Fonction utilisée pour convertir les character string en son equivalent minuscule*/
 void toLowerStr(char *str){
 	int lenght = strlen(str);
 	int i;
@@ -172,7 +168,7 @@ void toLowerStr(char *str){
 }
 
 
-
+/*machine à état de l'annalyse grammaticale*/
 void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille, int* erreur){
     /*definition des etats et des décalages dans chaque section*/
 	Section Sect;
@@ -194,11 +190,11 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
         	case INIT:
             		if(G->categorie == DIRECTIVE){
 				S = DONNE;
-				goto donnee;
+				goto donnee;/*saut car sinon sortie du while avec un seul passage*/
 			}			
           		else if(G->categorie == SYMBOLE){
 				S = DEBUT;
-				goto debut;
+				goto debut;/*saut car sinon sortie du while avec un seul passage*/
 			}
 			else if(G->categorie== COMMENTAIRE)
 				G=G->suiv;
@@ -249,17 +245,17 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 			*Do1=ajouterQueue(creerDonnee1(G->lexeme, G->categorie, 0, G->ligne, dec_data, ope), *Do1);
 			if(strcmp(G->lexeme, ".byte")==0){
 				G=G->suiv;
-				while (G->ligne==((Donnee1*)((*Do1)->pval))->ligne){
+				while (G->ligne==((Donnee1*)((*Do1)->pval))->ligne){/*on prend en compte les alternance entre virgule et opérandes*/
 					if(G->categorie==VIRGULE && G->suiv->ligne==((Donnee1*)((*Do1)->pval))->ligne && G->suiv->categorie!=VIRGULE && ((Donnee1*)((*Do1)->pval))->nbop!=0)
 						G=G->suiv;
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else if ((G->suiv->suiv->ligne==((Donnee1*)((*Do1)->pval))->ligne && G->suiv->categorie==VIRGULE) || G->suiv->ligne!=((Donnee1*)((*Do1)->pval))->ligne){
-					if((G->categorie==OCTATE) || (G->categorie==DECIMAL) || (G->categorie==HEXA)){/*modifier pour les octate ne marche pas*/
-							if((strtol(G->lexeme,NULL,0)>-129) && (strtol(G->lexeme,NULL,0)<128)){
+					if((G->categorie==OCTATE) || (G->categorie==DECIMAL) || (G->categorie==HEXA) ){/*vérification et conversion de l'opérande*/
+							if((strtol(G->lexeme,NULL,0)>-128) && (strtol(G->lexeme,NULL,0)<127)){
 								((Donnee1*)((*Do1)->pval))->nbop+=1;
 								OpeD* oper=malloc(sizeof(*oper));
-								oper->valeur.word=strtol(G->lexeme,NULL,0);
+								oper->valeur.byte=/*G->lexeme*/strtol(G->lexeme,NULL,0);
 								oper->type=G->categorie;
 								((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 								dec_data+=1;
@@ -336,16 +332,16 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 					else if(G->categorie==COMMENTAIRE)
 						G=G->suiv;
 					else if ((G->suiv->suiv->ligne==((Donnee1*)((*Do1)->pval))->ligne && G->suiv->categorie==VIRGULE) || G->suiv->ligne!=((Donnee1*)((*Do1)->pval))->ligne){
-					if((G->categorie==OCTATE) || (G->categorie==DECIMAL)){/*ne marche pas pour les octate*/
+					if((G->categorie==OCTATE) || (G->categorie==DECIMAL) || (G->categorie==HEXA)){
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
 						OpeD* oper=malloc(sizeof(*oper));
-						oper->valeur.word=atoi(G->lexeme);
+						oper->valeur.word=strtol(G->lexeme,NULL,0);
 						oper->type=G->categorie;
 						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 						dec_data+=4;
 						G=G->suiv;
 					}
-					else if((G->categorie==HEXA)){
+					/*else if((G->categorie==HEXA)){
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
 						OpeD* oper=malloc(sizeof(*oper));
 						oper->valeur.as_et=strdup(G->lexeme);
@@ -353,7 +349,7 @@ void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, Liste
 						((Donnee1*)((*Do1)->pval))->op=ajouterQueue(oper, ((Donnee1*)((*Do1)->pval))->op);
 						dec_data+=4;
 						G=G->suiv;
-					}
+					}*/
 					else if((G->categorie==SYMBOLE)){
 						((Donnee1*)((*Do1)->pval))->nbop+=1;
 						OpeD* oper=malloc(sizeof(*oper));
@@ -590,7 +586,7 @@ printf("%p\n",F);*/
 void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur){
 
 	FILE* dictionnaire;
-
+	/*chargement du dicctionnaire d'instruction*/
 	dictionnaire = fopen("src/dictionnaire_instruction.txt","r");
 	if (dictionnaire == NULL){
 		ERROR_MSG("le dictionnaire n'a pas été ouvert");
@@ -599,13 +595,13 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 	fscanf(dictionnaire, "%d",&nombreInstruc);
 	if(nombreInstruc == EOF) ERROR_MSG("le dictionnaire est vide");
 	Dico hashTable[nombreInstruc];
-	int index;
+	/*int index;*/
 	char instruc[10];
 	char ty;
 	int ope;
 	char o1[3];
 	int i = 0;
-	int j=0;
+	/*int j=0;*/
 	int k=0;
 	for(i=0; i<nombreInstruc; i++){
         	fscanf(dictionnaire, "%s %c %d", instruc, &ty, &ope);
@@ -654,7 +650,7 @@ void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, i
 		}
 	}*/
 	fclose(dictionnaire);
-
+	/*traitement des lexème par la machine à état*/
 	machine_a_etat_gram (F, Inst, Symb, Do1, Do2, hashTable, nombreInstruc, erreur);
 	libererdico(hashTable, nombreInstruc);
 

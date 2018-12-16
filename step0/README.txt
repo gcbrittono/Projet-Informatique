@@ -5,14 +5,24 @@ Votre tâche sera de le compléter.
 Le répertoire est organisé ainsi : 
 .
 ├── tests
-│   └── miam.s
+│   └── miam_sujet.s
+│   └── test.s
+│   └── instructions_test.s
+│   └── donnees_simple.s
 ├── src
 │   ├── main.c
 │   └── lex.c
+│   └── gram.c
+│   └── rel.c
+│   └── gen.c
 ├── include
 │   ├── notify.h
 │   ├── lex.h
 │   └── global.h
+│   └── lex.h
+│   └── gram.h
+│   └── rel.h
+│   └── gen.h
 ├── doc
 │   └── livrables
 ├── README.txt

@@ -32,6 +32,7 @@ lunchtime:
 boucles:
     .word menu, 12
     .asciiz "ils disent : \"au ru!\""
+	.byte 50
 .bss
 menu:
     .space 24

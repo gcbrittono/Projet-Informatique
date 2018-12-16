@@ -9,7 +9,7 @@
 #include <global.h>
 #include <notify.h>
 
-
+/*fonction qui vérifie le registre reg passe les mnémoniques en chiffre en comparant à une dictionnaire de registre*/
 void registre( char* reg, registres tab[32], int ligne){
 	int i=0;;
 	int ok=0;
@@ -24,9 +24,10 @@ void registre( char* reg, registres tab[32], int ligne){
 	if(indice!=-1)
 		strcpy(reg,tab[indice].reg);
 	else if(ok==0)
-		ERROR_MSG("erreur ce registre n'existe pas ligne %d \n",ligne);/*gestion erreurs arreter compil?*/
+		ERROR_MSG("erreur ce registre n'existe pas ligne %d \n",ligne);
 }
 
+/*fonction qui insère une instruction ddans la liste (file) générique a la position pointé par L*/
 ListeG inserer(void* e, ListeG L){
 	ListeG A=calloc(1,sizeof(e)+sizeof(A->suiv));
 	if (A==NULL)
@@ -128,14 +129,14 @@ void libererdico(Dico d[], int taille){
 	}
 }
 /*------------------------------------------------------------------------------------*/
-
+/*fonction sui vérifie et remplace toutes les mnémonique des registres de la liste d'instruction*/
 void associerReg(ListeG Inst,registres tableau[32],int ligne){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
 	for(i=0; i<nb;i++){
 		if(((Instruction*)(Inst->pval))->op[i].categorie==REGISTRE)
 			registre(((Instruction*)(Inst->pval))->op[i].lexeme,tableau,ligne);
-		else if (((Instruction*)(Inst->pval))->op[i].categorie==BASE_OF){
+		else if (((Instruction*)(Inst->pval))->op[i].categorie==BASE_OF){/*vérification des registres des bases offset*/
 			char* token = ((Instruction*)(Inst->pval))->op[i].lexeme;
 			int j=0;
 			while(*token!='('){
@@ -162,6 +163,7 @@ void associerReg(ListeG Inst,registres tableau[32],int ligne){
 	}
 }
 
+/*fonction qui charge le dictionnaire de registre*/
 void chargeRegistre(registres tab[32]){
 FILE* re;
 
@@ -185,7 +187,7 @@ FILE* re;
 /*Fonction pour créer la table de relocation à partir de l'étiquette*/
 table_relocation*  symbole_find(ListeG L, Symbole* symb, int i /*entier qui indique si data ou text*/){
 	table_relocation* tab_rel= malloc(sizeof(*tab_rel));
-	if(i==0){
+	if(i==0){/*pour la section data*/
 	/*if(symb->sect==DATA){*/
      		/*tab_rel->nom_section =strdup("DATA");*/
 		/*tab_rel->sect=DATA;*/
@@ -194,7 +196,7 @@ table_relocation*  symbole_find(ListeG L, Symbole* symb, int i /*entier qui indi
             	tab_rel->mode_relocation = 2;
 		tab_rel->pointeur = symb;
 	}
-	else if (i==1){
+	else if (i==1){/*pour la section text*/
         /*else if(symb->sect==TEXT){*/
             	/*tab_rel->nom_section =strdup("TEXT");*/
 		tab_rel->sect=TEXT;
@@ -241,29 +243,29 @@ void remplacer_instr(ListeG listeInstr, char* nom_instr_final, int nombop_instr_
 /*Fonction qui remplace les pseudo instructions
 la fonction décale le pointeur de la liste lorsqu'elle ajoute une instruction*/
 void pseudoInstruction( ListeG* instr){
-	char* o[3];
-	etat typop[3];
+	char* o[3];/*contient les nouveaux opérandes*/
+	etat typop[3];/*contient leur type*/
 	if (strcmp(((Instruction*)((*instr)->pval))->nom,"lw")==0){
 		o[0]=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
 		o[1]=strdup(((Instruction*)((*instr)->pval))->op[1].lexeme);
 		typop[0]=((Instruction*)((*instr)->pval))->op[0].categorie;
 		typop[1]=((Instruction*)((*instr)->pval))->op[1].categorie;
+		/*ajout de la deuxieme instruction*/
 		*instr=inserer(creerInstruction("lw", ((Instruction*)((*instr)->pval))->type, 2, ((Instruction*)((*instr)->pval))->ligne, (((Instruction*)((*instr)->pval))->decalage)+4 , 'I'), *instr);
 		((Instruction*)((*instr)->suiv->pval))->op[0].categorie=((Instruction*)((*instr)->pval))->op[0].categorie;
 		((Instruction*)((*instr)->suiv->pval))->op[0].lexeme=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
-		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=SYMBOLE/*BASE_OF*/;
+		((Instruction*)((*instr)->suiv->pval))->op[1].categorie=SYMBOLE/*BASE_OF*/;/*on ne change pas le type ici pour faire le mettre dans la table de relocation après*/
 		char mot[256];
-		strcpy(mot,((Instruction*)((*instr)->pval))->op[1].lexeme);/*ici*/
+		strcpy(mot,((Instruction*)((*instr)->pval))->op[1].lexeme);/*création de lopérande base offset*/
 		strcat(mot,"(");
 		strcat(mot,((Instruction*)((*instr)->pval))->op[0].lexeme);
 		strcat(mot,")");
 		((Instruction*)((*instr)->suiv->pval))->op[1].lexeme=strdup(mot);
 		((Instruction*)((*instr)->suiv->pval))->op[0].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->suiv->pval))->op[1].typeadr=strdup("Bas");
-		remplacer_instr(*instr, "lui", 2, 'I',o,typop);
-		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");/*ici changer l'opérande*/
+		remplacer_instr(*instr, "lui", 2, 'I',o,typop);/*remplacement de la première instruction*/
+		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Imm");
-/*faire la relocation ici pour les deux instructions*/
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"sw")==0){
 		o[0]=strdup("$1");
@@ -283,8 +285,6 @@ void pseudoInstruction( ListeG* instr){
 		remplacer_instr(*instr, "lui", 2, 'I',o, typop);
 		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Imm");
-
-/*faire la relocation ici pour les deux instructions*/
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"nop")==0){
 		o[0]=strdup("$0");
@@ -343,9 +343,6 @@ void pseudoInstruction( ListeG* instr){
 		((Instruction*)((*instr)->pval))->op[0].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->pval))->op[1].typeadr=strdup("Reg");
 		((Instruction*)((*instr)->pval))->op[2].typeadr=strdup("Reg");
-
-
-/*faire la relocation ici*/
 	}
 	else if (strcmp(((Instruction*)((*instr)->pval))->nom,"neg")==0){
 		o[0]=strdup(((Instruction*)((*instr)->pval))->op[0].lexeme);
@@ -361,7 +358,7 @@ void pseudoInstruction( ListeG* instr){
 	}
 }
 
-
+/*fonction pour faire la relocation totale d'une instruction si nécessaire*/
 void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 	int nb=((Instruction*)(Inst->pval))->nbop;
 	int i = 0;
@@ -427,6 +424,7 @@ void relocationInst(ListeG Inst,ListeG* Symb,int ligne,ListeG* RelocInst){
 	}
 }
 
+/*fonction qui fait la relocation de la section data*/
 void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData){
 	int nb=((Donnee1*)(Data->pval))->nbop;
 	int i = 0;
@@ -444,6 +442,7 @@ void relocationData(ListeG Data,ListeG* Symb,int ligne,ListeG* RelocData){
 	}
 }
 
+/*fonction qui trouve un symbole par som nom dans la table des symboles, et le rajoute à la fin avec la mention undefined s'il n'existe pas encore*/
 Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 	if(listeVide(*Symb)){
 		*Symb=ajouterQueue(creerSymbole(nom, SYMBOLE, ligne, UNDEFINED, 0), *Symb);
@@ -467,6 +466,7 @@ Symbole* trouverSymbole(char* nom, int ligne, ListeG* Symb){
 	}
 }
 
+/*fonction qui retrouve un symbole dans la table des symbole à partir de son nom*/
 Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb){
 	/*printf("mot :%s\n",nom);*/
 	if(listeVide(*Symb)){
@@ -484,6 +484,7 @@ Symbole* trouverSymbole2(char* nom, int ligne, ListeG* Symb){
 	}
 }
 
+/*fonction qui réalise la relocation des sections text et data en remplissant les liste RelocInst et RelocDta*/
 void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, ListeG* RelocData){
 	registres tab[32];
 	chargeRegistre(tab);
@@ -519,6 +520,7 @@ void rel(ListeG* Instruct, ListeG Data, ListeG* Etiquette, ListeG* RelocInst, Li
 	libererregistre(tab, 32);
 }
 
+/*fonction qui vérifie la validité des opérandes de l'instruction inst en type et en taille*/
 void extraction_des_operandes(Instruction* inst, ListeG Symb){
 	int i;
 	for(i=0;i<inst->nbop;i++){
@@ -627,7 +629,6 @@ void extraction_des_operandes(Instruction* inst, ListeG Symb){
 				else if(strcmp(inst->op[i].typeadr,"Rel")==0){
 					Symbole* pointeur;
 					pointeur = trouverSymbole2(inst->op[i].lexeme, inst->ligne, &Symb);
-					/*printf("ok+++++++++++++++++++++++++++++++++++++");*/
 					if(pointeur->sect==TEXT){
 						int saut=(pointeur->decalage)-(inst->decalage);
 						free(inst->op[i].lexeme);

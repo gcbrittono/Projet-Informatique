@@ -92,35 +92,35 @@ typedef struct {
 	Symbole symb;
 } Element;*/
 
-ListeG creerListeG();
+ListeG creerListeG();/*cré une liste générique G (en réalité file qui pointe sur le dernier élément*/
 
-int listeVide(ListeG L);
+int listeVide(ListeG L);/*teste si la liste générique est vide*/
 
-Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec, char type/*, ListeG operande*/);
+Instruction* creerInstruction(char* lex, etat cat,int nombop, int lig, unsigned int dec, char type/*, ListeG operande*/);/*crée la structure de l'instruction à partir de son contenue, sans remplir le contenue des opérandes*/
 
-Donnee1* creerDonnee1(char* lex, etat cat, int nombop, int lig, int dec, ListeG operande);
+Donnee1* creerDonnee1(char* lex, etat cat, int nombop, int lig, int dec, ListeG operande);/*pour créer la structure pour les data*/
 
-Donnee2* creerDonnee2(char* lex, etat cat, int nombop, int lig, int dec, int val);
+Donnee2* creerDonnee2(char* lex, etat cat, int nombop, int lig, int dec, int val);/*pour créer la structure pour la section bss*/
 
-Symbole* creerSymbole(char* lex, etat cat, int lig, Section section ,int dec);
+Symbole* creerSymbole(char* lex, etat cat, int lig, Section section ,int dec);/*pour créer la structure pour la section symbole*/
 
-ListeG ajouterQueue(void* e, ListeG L);
+ListeG ajouterQueue(void* e, ListeG L);/*fonction qui ajoute un élément générique à la liste (file)*/
 
-void afficherInst(Instruction* L);
+void afficherInst(Instruction* L);/*fonction d'affichage des instruction*/
 
-void afficherDo1(Donnee1* L);
+void afficherDo1(Donnee1* L);/*fonction d'affichage des data*/
 
-void afficherDo2(Donnee2* L);
+void afficherDo2(Donnee2* L);/*fonction d'affichage des bss*/
 
-void afficherSymb(Symbole* L);
+void afficherSymb(Symbole* L);/*fonctino d'affichage des symboles*/
 
-int funHash(char* str, int taille);
+int funHash(char* str, int taille);/*fonction de hachage (n'est finalement pas utilisée)*/
 
-void toLowerStr(char *str);
+void toLowerStr(char *str);/*fonction qui permet de passer du texte en minuscule, sert pour la comparaison des instructions*/
 
-void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille, int* erreur);
+void machine_a_etat_gram (File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, Dico tableau[], int taille, int* erreur);/*machine à état de l'annalyse grammaticale*/
 
-void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur);
+void gramAnalyse(File F, ListeG* Inst, ListeG* Symb, ListeG* Do1, ListeG* Do2, int* erreur);/*fonction qui fait l'annalyse grammaticale de code*/ 
 
 /*File defiler*/
 
